@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 2rem;">
+    <h2>{{ session.get('full_name', 'User') }}'s Dashboard</h2>
+    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Role: {{ role }}</p>
+</div>
+
+<!-- ========================================== -->
+<!-- TEACHER / INSTRUCTOR VIEW                  -->
+<!-- ========================================== -->
+{% if role == 'Instructor' %}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <!-- Question Bank -->
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">Question Bank</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Manage the centralized repository of MCQ questions.</p>
+        <a href="#" class="btn" style="background: #8b5cf6;">Manage Questions</a>
+        <!-- Placeholder for list rendering: 
+             {% for question in past_questions %} 
+             ... 
+             {% endfor %} 
+        -->
+    </div>
+
+    <!-- Test Creation -->
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">Create a Test</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Generate a new MCQ exam by selecting questions.</p>
+        <a href="#" class="btn" style="background: #ec4899;">Launch Creator</a>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- STUDENT VIEW                               -->
+<!-- ========================================== -->
+{% elif role == 'Student' %}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <!-- Available Tests -->
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">Available Tests</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Tests assigned to you currently active.</p>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+            <p><strong>Midterm Exam - DBMS</strong></p>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">Duration: 60 mins</p>
+            <a href="/test" class="btn" style="padding: 0.5rem 1rem;">Start</a>
+        </div>
+        <!-- To developers: Loop through fetched db testing rows here:
+             {% for test in active_tests %} 
+             ... 
+             {% endfor %} 
+        -->
+    </div>
+
+    <!-- Past Results -->
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">My Results</h3>
+        <p style="color: var(--text-secondary);">Review your past evaluation scores.</p>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
+        <p style="text-align: center; color: var(--text-secondary);">No grades posted yet.</p>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- ADMIN VIEW                               -->
+<!-- ========================================== -->
+{% elif role == 'Admin' %}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">Manage Users</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Add, remove, or modify roles across the system.</p>
+        <a href="/admin/users" class="btn" style="background: #10b981;">Users Database</a>
+    </div>
+
+    <div class="glass-panel">
+        <h3 style="margin-bottom: 1rem;">System Analytics</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">View overall platform usage and database status.</p>
+        <a href="#" class="btn" style="background: #f59e0b;">View Analytics</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

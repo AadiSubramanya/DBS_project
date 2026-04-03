@@ -1,0 +1,13 @@
+:root {
+  --primary-color: #6366f1;
+  --secondary-color: #4f46e5;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f8fafc;
+}
+* { box-sizing: border-box; margin: 0; font-family: sans-serif; }
+body { background: var(--bg-gradient); color: var(--text-primary); min-height: 100vh; padding: 2rem; }
+.glass-panel { background: var(--surface-glass); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 2rem; }
+.btn { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+input { padding: 10px; width: 100%; margin-bottom: 10px; border-radius: 6px; }
