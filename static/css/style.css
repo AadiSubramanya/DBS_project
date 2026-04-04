@@ -1,13 +1,10 @@
-:root {
-  --primary-color: #6366f1;
-  --secondary-color: #4f46e5;
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  --surface-glass: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --text-primary: #f8fafc;
-}
-* { box-sizing: border-box; margin: 0; font-family: sans-serif; }
-body { background: var(--bg-gradient); color: var(--text-primary); min-height: 100vh; padding: 2rem; }
-.glass-panel { background: var(--surface-glass); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 2rem; }
-.btn { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; }
-input { padding: 10px; width: 100%; margin-bottom: 10px; border-radius: 6px; }
+/* Barebones CSS: Only basic structure for readability */
+body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 1200px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+form { margin: 20px 0; }
+input, select, textarea { display: block; margin-bottom: 10px; width: 100%; padding: 8px; box-sizing: border-box; }
+button, .btn { padding: 8px 16px; cursor: pointer; display: inline-block; }
+nav { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 25px; }
+.alert { background: #fee; border: 1px solid #fcc; padding: 10px; margin-bottom: 20px; }
+section { border: 1px solid #eee; padding: 20px; margin-bottom: 20px; }

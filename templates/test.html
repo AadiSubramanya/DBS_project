@@ -1,27 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="glass-panel" style="margin: 2rem; padding: 2rem;">
-    <h2>{{ info[0] }}</h2>
-    <p>Time limit: {{ info[1] }} minutes</p>
+<section>
+    <h2>Test: {{ info[0] }}</h2>
+    <p><b>Subject:</b> {{ info[2] or 'General' }} | <b>Duration:</b> {{ info[1] }} mins</p>
+    
+    <hr>
 
-    <form method="POST" style="margin-top: 1rem;">
+    <form method="POST">
         {% for q in qs %}
-        <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem;">
-            <h4>{{ loop.index }}. {{ q[1] }}</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 10px;">
-                <label><input type="radio" name="q_{{ q[0] }}" value="A" required> {{ q[2] }}</label>
-                <label><input type="radio" name="q_{{ q[0] }}" value="B" required> {{ q[3] }}</label>
-                <label><input type="radio" name="q_{{ q[0] }}" value="C" required> {{ q[4] }}</label>
-                <label><input type="radio" name="q_{{ q[0] }}" value="D" required> {{ q[5] }}</label>
-            </div>
+        <div style="border-bottom: 1px dashed #ccc; padding: 15px 0;">
+            <p><b>Q{{ loop.index }}: {{ q[1] }}</b></p>
+            <label><input type="radio" name="q_{{ q[0] }}" value="A" required> A. {{ q[2] }}</label><br>
+            <label><input type="radio" name="q_{{ q[0] }}" value="B" required> B. {{ q[3] }}</label><br>
+            <label><input type="radio" name="q_{{ q[0] }}" value="C" required> C. {{ q[4] }}</label><br>
+            <label><input type="radio" name="q_{{ q[0] }}" value="D" required> D. {{ q[5] }}</label>
         </div>
         {% else %}
-        <p>No questions mapped to this test yet!</p>
+        <p>No questions in this test.</p>
         {% endfor %}
 
-        {% if qs|length > 0 %}
-        <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1.2rem;">Submit Results</button>
+        {% if qs %}
+        <br>
+        <button type="submit" onclick="return confirm('Submit test?')">Submit Assessment</button>
         {% endif %}
     </form>
-</div>
+</section>
 {% endblock %}

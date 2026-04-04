@@ -1,34 +1,108 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="glass-panel" style="margin: 2rem; padding: 2rem;">
-    <h2>Manage Test: {{ title }}</h2>
-    <a href="/dashboard" style="color: #fff; text-decoration: underline;">&larr; Back</a>
+<h2>Manage Test: {{ title }}</h2>
+<a href="/dashboard">&larr; Back to Dashboard</a>
+<hr>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-        <div class="glass-panel">
-            <h3>Add Question from Bank</h3>
-            <ul>
-                {% for q in avail %}
-                <li style="margin-bottom: 10px;">
-                    {{ q[1][:50] }}...
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="qid" value="{{ q[0] }}">
-                        <button type="submit" class="btn" style="padding: 2px 8px; font-size: 0.8rem;">Add</button>
-                    </form>
-                </li>
-                {% else %}<li>No available questions to add.</li>{% endfor %}
-            </ul>
-        </div>
+<!-- STEP 1: Author a new question and add it directly -->
+<section>
+    <h3>Add New Question to This Test</h3>
+    <form method="POST" action="/manage/{{ tid }}">
+        <input type="hidden" name="action" value="create_and_add">
+        <label>Question:<br><input type="text" name="text" placeholder="Enter question text" required></label>
+        <label>Option A:<br><input type="text" name="a" required></label>
+        <label>Option B:<br><input type="text" name="b" required></label>
+        <label>Option C:<br><input type="text" name="c" required></label>
+        <label>Option D:<br><input type="text" name="d" required></label>
+        <label>Correct Answer (A/B/C/D):<br><input type="text" name="ans" maxlength="1" required style="width:60px;"></label>
+        <br><button type="submit">Upload Question to Test</button>
+    </form>
+</section>
 
-        <div class="glass-panel">
-            <h3>Student Results</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr><th align="left">Student</th><th align="left">Score</th></tr>
-                {% for r in results %}
-                <tr><td>{{ r[0] }}</td><td>{{ r[1] }}/{{ r[2] }}</td></tr>
-                {% else %}<tr><td colspan="2">No attempts yet.</td></tr>{% endfor %}
-            </table>
-        </div>
-    </div>
-</div>
+<hr>
+
+<!-- STEP 2: Optionally pick from existing bank questions -->
+{% if avail %}
+<section>
+    <h3>Pick from Question Bank (same subject)</h3>
+    <table>
+        <tr><th>#</th><th>Question</th><th>Action</th></tr>
+        {% for q in avail %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ q[1] }}</td>
+            <td>
+                <form method="POST" action="/manage/{{ tid }}" style="margin:0;">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="qid" value="{{ q[0] }}">
+                    <button type="submit">Add to Test</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+<hr>
+{% endif %}
+
+<!-- STEP 3: Review current questions in this test -->
+<section>
+    <h3>Questions Currently in This Test ({{ current_qs|length }} total)</h3>
+    {% if current_qs %}
+    <table>
+        <tr><th>#</th><th>Question</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Answer</th><th>Action</th></tr>
+        {% for q in current_qs %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ q[1] }}</td>
+            <td>{{ q[2] }}</td>
+            <td>{{ q[3] }}</td>
+            <td>{{ q[4] }}</td>
+            <td>{{ q[5] }}</td>
+            <td><b>{{ q[6] }}</b></td>
+            <td>
+                <form method="POST" action="/manage/{{ tid }}" style="margin:0;">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="qid" value="{{ q[0] }}">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No questions added yet. Use the form above to add questions one by one.</p>
+    {% endif %}
+</section>
+
+<hr>
+
+<!-- STEP 4: Go Live -->
+<section>
+    <h3>Publish</h3>
+    <p>When ready, go back to the dashboard and click "Upload &amp; Start Test" to make it live for students.</p>
+    <a href="/dashboard">Go to Dashboard</a>
+</section>
+
+<hr>
+
+<!-- STEP 5: Analytics -->
+<section>
+    <h3>Student Results Analytics</h3>
+    {% if results %}
+    <table>
+        <tr><th>Student</th><th>Score</th><th>Out of</th><th>Date</th></tr>
+        {% for r in results %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No students have taken this test yet.</p>
+    {% endif %}
+</section>
 {% endblock %}

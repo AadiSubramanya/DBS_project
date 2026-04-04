@@ -1,30 +1,32 @@
-{% extends "base.html" %} 
+{% extends 'base.html' %}
 {% block content %}
-<div class="glass-panel" style="max-width: 450px; margin: auto;">
+<section>
     <h2>{{ title }}</h2>
-    {% if is_register %}<p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Create a new profile on the system.</p>{% endif %}
-    <form method="POST">
+    <form action="{{ '/register' if is_register else '/login' }}" method="POST">
         {% if is_register %}
-        <input type="text" name="full_name" required placeholder="Full Name (John Doe)">
-        <input type="email" name="email" required placeholder="Email Address">
-        {% endif %}
-        <input type="text" name="username" required placeholder="Username">
-        <input type="password" name="password" required placeholder="Password">
-        {% if is_register %}
-        <select name="role" required style="margin-bottom: 20px;">
-            <option value="Student">Student (Take Tests)</option>
-            <option value="Instructor">Teacher (Create Tests)</option>
-            <option value="Admin">Administrator (Manage System)</option>
-        </select>
-        {% endif %}
-        <button type="submit" class="btn" style="width: 100%;">{{ title }}</button>
-    </form>
-    <div style="margin-top: 1rem; text-align: center;">
-        {% if is_register %}
-        <a href="/login" style="color: white; text-decoration: none; font-size: 0.9em;">Already have an account? Login</a>
+            <label>Username: <input type="text" name="username" required></label>
+            <label>Full Name: <input type="text" name="full_name" required></label>
+            <label>Email: <input type="email" name="email" required></label>
+            <label>Role: 
+                <select name="role">
+                    <option value="Student">Student</option>
+                    <option value="Instructor">Instructor</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </label>
         {% else %}
-        <a href="/register" style="color: white; text-decoration: none; font-size: 0.9em;">Need an account? Register</a>
+            <label>Username: <input type="text" name="username" required></label>
         {% endif %}
-    </div>
-</div>
+        
+        <label>Password: <input type="password" name="password" required></label>
+        
+        <button type="submit">{{ 'Create Account' if is_register else 'Sign In' }}</button>
+    </form>
+    
+    {% if is_register %}
+        <p>Already have an account? <a href="/login">Login here</a></p>
+    {% else %}
+        <p>New user? <a href="/register">Register here</a></p>
+    {% endif %}
+</section>
 {% endblock %}

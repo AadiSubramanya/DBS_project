@@ -5,21 +5,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="glass-panel" style="display: flex; justify-content: space-between; padding: 1rem;">
-        <h2>Online MCQ Portal</h2>
+    <nav>
+        <h1>Online MCQ Portal</h1>
         <div>
             {% if session.get('user_id') %}
-                <a href="/dashboard" class="btn">Dashboard</a>
-                <a href="/logout" class="btn" style="background: red;">Logout</a>
+                <a href="/dashboard">Dashboard</a> | 
+                <a href="/logout">Logout ({{ session['full_name'] }})</a>
             {% else %}
-                <a href="/login" class="btn">Login</a>
-                <a href="/register" class="btn">Register</a>
+                <a href="/login">Login</a> | 
+                <a href="/register">Register</a>
             {% endif %}
         </div>
     </nav>
-    <div>
-        {% for message in get_flashed_messages() %} <div style="color: yellow; margin-bottom: 1rem;">{{ message }}</div> {% endfor %}
+    
+    {% for message in get_flashed_messages() %}
+        <div class="alert">{{ message }}</div>
+    {% endfor %}
+
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
 </body>
 </html>
