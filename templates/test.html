@@ -1,1 +1,27 @@
-{% extends "base.html" %} {% block content %}<div class="glass-panel"><h2>Take Exam</h2><form><p>Q1: Select missing word...</p><button class="btn">Submit</button></form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="glass-panel" style="margin: 2rem; padding: 2rem;">
+    <h2>{{ info[0] }}</h2>
+    <p>Time limit: {{ info[1] }} minutes</p>
+
+    <form method="POST" style="margin-top: 1rem;">
+        {% for q in qs %}
+        <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem;">
+            <h4>{{ loop.index }}. {{ q[1] }}</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 10px;">
+                <label><input type="radio" name="q_{{ q[0] }}" value="A" required> {{ q[2] }}</label>
+                <label><input type="radio" name="q_{{ q[0] }}" value="B" required> {{ q[3] }}</label>
+                <label><input type="radio" name="q_{{ q[0] }}" value="C" required> {{ q[4] }}</label>
+                <label><input type="radio" name="q_{{ q[0] }}" value="D" required> {{ q[5] }}</label>
+            </div>
+        </div>
+        {% else %}
+        <p>No questions mapped to this test yet!</p>
+        {% endfor %}
+
+        {% if qs|length > 0 %}
+        <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1.2rem;">Submit Results</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
