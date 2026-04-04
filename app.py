@@ -78,7 +78,19 @@ def dashboard():
             c.execute("SELECT user_id, username, full_name, role, email FROM USERS ORDER BY user_id")
             data['users'] = c.fetchall()
             
-            # Use safe fetches for the new tables just in case schema.sql wasn't run yet
+            # Fetch all tables for the Master Database Explorer
+            tables = ['USERS', 'SUBJECTS', 'AUDIT_LOGS', 'QUESTIONS', 'TESTS', 'TEST_QUESTIONS', 'TEST_ATTEMPTS', 'STUDENT_ANSWERS']
+            db_view = {}
+            for t in tables:
+                try:
+                    c.execute(f"SELECT column_name FROM user_tab_columns WHERE table_name = '{t}' ORDER BY column_id")
+                    cols = [col[0] for col in c.fetchall()]
+                    c.execute(f"SELECT * FROM {t}")
+                    db_view[t] = {'cols': cols, 'rows': c.fetchall()}
+                except: db_view[t] = {'cols': [], 'rows': []}
+            data['db_view'] = db_view
+            
+            # Legacy counts and logs
             for key, query in [('u_cnt', "SELECT COUNT(*) FROM USERS"), 
                                ('t_cnt', "SELECT COUNT(*) FROM TESTS"),
                                ('logs', "SELECT action, timestamp FROM AUDIT_LOGS ORDER BY timestamp DESC FETCH FIRST 50 ROWS ONLY"),

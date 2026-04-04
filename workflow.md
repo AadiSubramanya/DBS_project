@@ -58,10 +58,5 @@ We use **Jinja2** to dynamically render data passed from `app.py` into our HTML 
 - **`mock_data.sql`**
   An initial injection DML script to populate your tables with example generic data, granting you immediate capabilities to test interactions without having to bootstrap everything yourself.
 
-### 🛠️ Developer Scripts
-
-- **`view_database.py`**
-  A secondary CLI tool designed separately from the web application. It securely connects to the data store to print out raw console-ready snapshots of the DB table rows for immediate debugging checks.
-
 - **`README.md`**
   The startup tutorial designed for any incoming developer detailing specifically how to set up their Windows terminal, pip installations, and SQL*Plus sequences.
