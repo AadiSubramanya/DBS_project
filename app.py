@@ -551,20 +551,27 @@ def test_analytics(tid):
         dist = c.fetchone()
         stats['dist'] = [int(d or 0) for d in dist]
 
-        # Per-question accuracy
+        # Per-question accuracy - Refactored to avoid GROUP BY on CLOB
         c.execute("""
             SELECT q.question_id, q.text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option,
-                   COUNT(sa.attempt_id) as attempts,
-                   SUM(sa.is_correct) as correct_count,
-                   ROUND(SUM(sa.is_correct) * 100.0 / NULLIF(COUNT(sa.attempt_id), 0), 1) as accuracy
+                   agg.attempts, agg.correct_count, agg.accuracy
             FROM QUESTIONS q
             JOIN TEST_QUESTIONS tq ON tq.question_id = q.question_id
-            LEFT JOIN STUDENT_ANSWERS sa ON sa.question_id = q.question_id
-                AND sa.attempt_id IN (SELECT attempt_id FROM TEST_ATTEMPTS WHERE test_id = :1)
-            WHERE tq.test_id = :1
-            GROUP BY q.question_id, q.text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option
+            JOIN (
+                SELECT q2.question_id,
+                       COUNT(sa.attempt_id) as attempts,
+                       SUM(NVL(sa.is_correct, 0)) as correct_count,
+                       ROUND(SUM(NVL(sa.is_correct, 0)) * 100.0 / NULLIF(COUNT(sa.attempt_id), 0), 1) as accuracy
+                FROM QUESTIONS q2
+                JOIN TEST_QUESTIONS tq2 ON tq2.question_id = q2.question_id
+                LEFT JOIN STUDENT_ANSWERS sa ON sa.question_id = q2.question_id
+                    AND sa.attempt_id IN (SELECT attempt_id FROM TEST_ATTEMPTS WHERE test_id = :1)
+                WHERE tq2.test_id = :2
+                GROUP BY q2.question_id
+            ) agg ON q.question_id = agg.question_id
+            WHERE tq.test_id = :3
             ORDER BY accuracy ASC NULLS LAST
-        """, (tid, tid))
+        """, (tid, tid, tid))
         q_rows = c.fetchall()
         q_stats = []
         for i, qr in enumerate(q_rows):

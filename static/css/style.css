@@ -297,7 +297,57 @@ a {
 }
 
 a:hover {
-    color: #fff;
+    color: var(--accent);
+}
+
+.link-action {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all var(--transition);
+}
+
+.link-action:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    box-shadow: 3px 3px 0 var(--glass-border);
+    transform: translate(-1.5px, -1.5px);
+}
+
+.link-action.link-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.link-action.link-danger:hover {
+    background: var(--danger);
+    color: var(--bg-primary);
+    box-shadow: 3px 3px 0 var(--danger);
+}
+
+.btn-delete-outline {
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-delete-outline:hover {
+    background: var(--danger);
+    color: var(--bg-primary);
+    box-shadow: 3px 3px 0 var(--danger);
+    transform: translate(-1.5px, -1.5px);
 }
 
 hr {
@@ -555,9 +605,10 @@ tbody tr:hover {
     color: var(--success);
 }
 
-.badge-draft {
-    background: rgba(255, 178, 87, 0.15);
-    color: var(--warning);
+.badge-draft,
+.badge-offline {
+    background: rgba(163, 163, 163, 0.15);
+    color: var(--text-muted);
 }
 
 /* ---------- Dashboard hero header ---------- */
@@ -847,5 +898,136 @@ tbody tr:hover {
 [data-theme="light"] .theme-toggle .icon-light {
     opacity: 1;
     transform: scale(1) rotate(0deg);
+}
+
+/* ---------- Student Test Test UI Enhancements ---------- */
+.test-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.test-header-sticky {
+    position: sticky;
+    top: 64px;
+    background: var(--bg-primary);
+    padding: 1.5rem 0;
+    border-bottom: 2px solid var(--glass-border);
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.test-timer-prominent {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    padding: 0.5rem 1.2rem;
+    border: 3px solid var(--accent);
+    box-shadow: 6px 6px 0 var(--accent-glow);
+    background: var(--bg-secondary);
+}
+
+.question-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.question-card:hover {
+    transform: translateX(4px);
+    border-left: 4px solid var(--accent);
+}
+
+.question-num {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    padding: 0.2rem 1rem;
+    font-weight: 900;
+    font-size: 0.9rem;
+    font-family: var(--font-display);
+}
+
+.question-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-item:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent);
+}
+
+.option-item input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--glass-border);
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    margin: 0;
+}
+
+.option-item input[type="radio"]:checked {
+    border-color: var(--accent);
+    background: var(--accent);
+}
+
+.option-item input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: var(--bg-primary);
+}
+
+.option-label {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.option-item:has(input:checked) {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    box-shadow: 3px 3px 0 var(--accent-glow);
+}
+
+.option-item:has(input:checked) .option-label {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 

@@ -209,8 +209,8 @@
                     <td>{{ t[1] }}</td>
                     <td>{{ t[3] }}</td>
                     <td>
-                        <span class="badge {{ 'badge-live' if t[4] else 'badge-draft' }}">
-                            {{ 'Live' if t[4] else 'Draft' }}
+                        <span class="badge {{ 'badge-live' if t[4] else 'badge-offline' }}">
+                            {{ 'Live' if t[4] else 'Offline' }}
                         </span>
                         {% if t[4] %}
                         <div style="font-size: 0.8rem; margin-top: 0.4rem; font-family: var(--font-body);" class="text-muted" id="timer-{{ t[0] }}" data-secs="{{ t[5] }}">
@@ -233,7 +233,7 @@
                         <form action="/instructor/action" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Delete this test? Sub-questions will be removed too.');">
                             <input type="hidden" name="type" value="delete_test">
                             <input type="hidden" name="test_id" value="{{ t[0] }}">
-                            <button type="submit" style="background:transparent; border:none; padding:0; margin:0; text-transform:none; letter-spacing:normal; text-decoration:underline; font-weight:400; color:var(--danger);" class="link-action" id="del-test-{{ t[0] }}">Delete</button>
+                            <button type="submit" class="btn-delete-outline" id="del-test-{{ t[0] }}">Delete</button>
                         </form>
                     </td>
                 </tr>
