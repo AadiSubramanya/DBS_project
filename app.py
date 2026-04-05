@@ -13,7 +13,7 @@ def role_required(role_name):
             if 'user_id' not in session:
                 return redirect(url_for('login'))
             if session.get('role') != role_name:
-                flash(f"Unauthorized. {role_name} access required.")
+                flash(f"Unauthorized. {role_name} access required.", 'error')
                 return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
         return decorated_function
@@ -51,9 +51,9 @@ def login():
                 session.update({'user_id': usr[0], 'role': usr[1], 'full_name': usr[2]})
                 log_audit(usr[0], "Logged in")
                 return redirect(url_for('dashboard'))
-            flash("Invalid username or password.")
+            flash("Invalid username or password.", 'error')
         except Exception as e:
-            flash(str(e))
+            flash(str(e), 'error')
     return render_template('auth.html', title="Login", is_register=False)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -69,10 +69,10 @@ def register():
             )
             conn.commit()
             conn.close()
-            flash("Registered successfully! Please log in.")
+            flash("Registered successfully! Please log in.", 'success')
             return redirect(url_for('login'))
         except Exception as e:
-            flash(str(e))
+            flash(str(e), 'error')
     return render_template('auth.html', title="Register", is_register=True)
 
 @app.route('/logout')
@@ -219,7 +219,7 @@ def dashboard():
 
         conn.close()
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
     return render_template('dashboard.html', data=data)
 
 # ─────────────────────────────────────────
@@ -237,10 +237,10 @@ def admin_action():
             name = request.form.get('name', '').strip()
             desc = request.form.get('desc', '').strip()
             if not name:
-                flash("Subject name is required.")
+                flash("Subject name is required.", 'error')
                 return redirect('/dashboard')
             c.execute("INSERT INTO SUBJECTS(name, description) VALUES (:1, :2)", (name, desc))
-            flash(f"Subject '{name}' created.")
+            flash(f"Subject '{name}' created.", 'success')
         elif action_type == 'delete_subject':
             c.execute("DELETE FROM SUBJECTS WHERE subject_id = :1", (request.form['subject_id'],))
             flash("Subject deleted.", 'success')
@@ -269,7 +269,7 @@ def inst_action():
             title  = request.form.get('title', '').strip()
             dur    = request.form.get('dur')
             if not sub_id or not title or not dur:
-                flash("All fields required to create a test.")
+                flash("All fields required to create a test.", 'error')
                 return redirect('/dashboard')
             c.execute(
                 "INSERT INTO TESTS(creator_id, subject_id, title, duration_minutes, is_active) VALUES (:1,:2,:3,:4,0)",
@@ -302,7 +302,7 @@ def toggle_test(tid):
         c.execute("SELECT is_active FROM TESTS WHERE test_id = :1 AND creator_id = :2", (tid, session['user_id']))
         res = c.fetchone()
         if res is None:
-            flash("Test not found.")
+            flash("Test not found.", 'error')
         else:
             new_val = 0 if res[0] == 1 else 1
             if new_val == 1:
@@ -310,10 +310,10 @@ def toggle_test(tid):
             else:
                 c.execute("UPDATE TESTS SET is_active = :1 WHERE test_id = :2", (new_val, tid))
             conn.commit()
-            flash("Test is now LIVE." if new_val == 1 else "Test closed.")
+            flash("Test is now LIVE." if new_val == 1 else "Test closed.", 'success')
         conn.close()
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
     return redirect('/dashboard')
 
 # ─────────────────────────────────────────
@@ -331,7 +331,7 @@ def manage_test(tid):
         c.execute("SELECT title, subject_id FROM TESTS WHERE test_id = :1 AND creator_id = :2", (tid, session['user_id']))
         row = c.fetchone()
         if row is None:
-            flash("Test not found or access denied.")
+            flash("Test not found or access denied.", 'error')
             return redirect('/dashboard')
         title, sid = row[0], row[1]
 
@@ -350,19 +350,19 @@ def manage_test(tid):
                 qid = c.fetchone()[0]
                 c.execute("INSERT INTO TEST_QUESTIONS(test_id, question_id, points) VALUES (:1, :2, 1)", (tid, qid))
                 conn.commit()
-                flash("Question added to test.")
+                flash("Question added to test.", 'success')
 
             elif action == 'add':
                 # Add an existing bank question
                 c.execute("INSERT INTO TEST_QUESTIONS(test_id, question_id, points) VALUES (:1, :2, 1)", (tid, request.form['qid']))
                 conn.commit()
-                flash("Question added.")
+                flash("Question added.", 'success')
 
             elif action == 'remove':
                 # Remove a question from the test (does NOT delete from bank)
                 c.execute("DELETE FROM TEST_QUESTIONS WHERE test_id = :1 AND question_id = :2", (tid, request.form['qid']))
                 conn.commit()
-                flash("Question removed from test.")
+                flash("Question removed from test.", 'success')
 
             return redirect(url_for('manage_test', tid=tid))
 
@@ -402,7 +402,7 @@ def manage_test(tid):
         return render_template('manage.html', tid=tid, title=title, current_qs=current_qs, avail=avail)
 
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
         return redirect('/dashboard')
 
 # ─────────────────────────────────────────
