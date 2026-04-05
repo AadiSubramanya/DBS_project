@@ -7,38 +7,38 @@
 
 /* ---------- CSS Variables ---------- */
 :root {
-    --bg-primary: #0d0f17;
-    --bg-secondary: #13161f;
-    --bg-card: rgba(255, 255, 255, 0.04);
-    --bg-card-hover: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --bg-primary: #111111;
+    --bg-secondary: #1a1a1a;
+    --bg-card: rgba(255, 255, 255, 0.03);
+    --bg-card-hover: rgba(255, 255, 255, 0.06);
+    --glass-border: #333333;
 
-    --accent: #7c6aff;
-    --accent-light: #a898ff;
-    --accent-glow: rgba(124, 106, 255, 0.35);
-    --danger: #ff5c7a;
-    --danger-light: #ff8fa3;
+    --accent: #FF3333;
+    --accent-light: #ff6666;
+    --accent-glow: rgba(255, 51, 51, 0.2);
+    --danger: #FF3333;
+    --danger-light: #ff6666;
     --success: #3ecf8e;
     --warning: #ffb257;
 
-    --text-primary: #f0f2ff;
-    --text-secondary: #8b90a8;
-    --text-muted: #555a73;
+    --text-primary: #F9F9F7;
+    --text-secondary: #aaaaaa;
+    --text-muted: #666666;
 
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 18px;
-    --radius-xl: 24px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: 4px 4px 0px 0px #333333;
 
-    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: 0.18s ease-out;
 
     /* fonts */
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'Lora', Georgia, serif;
+    --font-display: 'Playfair Display', 'Times New Roman', serif;
 }
 
 /* ============================================
@@ -121,7 +121,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--accent);
-    border-radius: 99px;
+    border-radius: 0;
 }
 
 /* ---------- Navbar ---------- */
@@ -444,7 +444,7 @@ table button[type="submit"] {
     border: 1px solid rgba(255, 92, 122, 0.4);
     color: var(--danger-light);
     box-shadow: none;
-    border-radius: 6px;
+    border-radius: 0;
 }
 
 table button[type="submit"]:hover {
@@ -516,7 +516,7 @@ tbody tr:hover {
 .badge {
     display: inline-block;
     padding: 0.2rem 0.6rem;
-    border-radius: 99px;
+    border-radius: 0;
     font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -686,15 +686,17 @@ tbody tr:hover {
 .link-action {
     color: var(--accent-light);
     font-size: 0.83rem;
-    font-weight: 500;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0;
+    border: 1px solid var(--glass-border);
     transition: background var(--transition), color var(--transition);
 }
 
 .link-action:hover {
-    background: rgba(124, 106, 255, 0.15);
-    color: #fff;
+    background: var(--bg-card-hover);
+    border-color: var(--accent);
+    color: var(--text-primary);
 }
 
 .link-danger {
@@ -738,13 +740,14 @@ tbody tr:hover {
     color: var(--warning);
     opacity: 0.7;
     padding: 0.2rem 0.5rem;
-    border-radius: 6px;
+    border-radius: 0;
     transition: opacity var(--transition), background var(--transition);
 }
 
 .repair-link:hover {
     opacity: 1;
-    background: rgba(255, 178, 87, 0.1);
+    background: var(--bg-card-hover);
+    border: 1px solid var(--warning);
 }
 
 /* ---------- Responsive ---------- */
