@@ -36,7 +36,8 @@
         </div>
         <label style="max-width:120px;">
             Correct Answer
-            <input type="text" name="ans" maxlength="1" placeholder="A/B/C/D" required style="text-transform:uppercase; text-align:center; letter-spacing:0.15em;">
+            <input type="text" name="ans" maxlength="1" placeholder="A/B/C/D" required
+                style="text-transform:uppercase; text-align:center; letter-spacing:0.15em;">
         </label>
         <div>
             <button type="submit" id="upload-question-btn">Upload Question to Test</button>
@@ -50,7 +51,13 @@
     <h3>Question Bank (same subject – {{ avail|length }} available)</h3>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>Question</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for q in avail %}
                 <tr>
@@ -73,11 +80,24 @@
 
 <!-- STEP 3: Current questions in test -->
 <section>
-    <h3>Questions in This Test &nbsp;<span class="text-muted" style="font-size:0.85rem; font-weight:400; text-transform:none; letter-spacing:normal;">({{ current_qs|length }} total)</span></h3>
+    <h3>Questions in This Test &nbsp;<span class="text-muted"
+            style="font-size:0.85rem; font-weight:400; text-transform:none; letter-spacing:normal;">({{
+            current_qs|length }} total)</span></h3>
     {% if current_qs %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>#</th><th>Question</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Answer</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>A</th>
+                    <th>B</th>
+                    <th>C</th>
+                    <th>D</th>
+                    <th>Answer</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for q in current_qs %}
                 <tr>
@@ -111,7 +131,15 @@
     {% if results %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Student</th><th>Score</th><th>Out of</th><th>Date</th><th>Result</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Score</th>
+                    <th>Out of</th>
+                    <th>Date</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for r in results %}
                 <tr>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,38 +8,39 @@
     <title>{% block title %}MCQ Portal{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <!-- Apply saved theme before paint to avoid flash -->
     <script>
-        (function() {
+        (function () {
             var saved = localStorage.getItem('mcq-theme');
             if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
         })();
     </script>
 </head>
+
 <body>
     <nav>
         <h1>⬡ MCQ Portal</h1>
         <div>
             {% if session.get('user_id') %}
-                <a href="/dashboard">Dashboard</a>
-                <span class="nav-sep">|</span>
-                <a href="/logout">Sign out ({{ session['full_name'] }})</a>
+            <a href="/dashboard">Dashboard</a>
+            <span class="nav-sep">|</span>
+            <a href="/logout">Sign out ({{ session['full_name'] }})</a>
             {% else %}
-                <a href="/login">Login</a>
-                <span class="nav-sep">|</span>
-                <a href="/register">Register</a>
+            <a href="/login">Login</a>
+            <span class="nav-sep">|</span>
+            <a href="/register">Register</a>
             {% endif %}
 
             <span class="nav-sep">|</span>
 
             <!-- Theme toggle button -->
-            <button class="theme-toggle" id="theme-toggle-btn"
-                    onclick="toggleTheme()"
-                    title="Switch theme"
-                    aria-label="Toggle light/dark mode">
+            <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Switch theme"
+                aria-label="Toggle light/dark mode">
                 <!-- Moon icon (dark mode active) -->
                 <span class="icon-dark" aria-hidden="true">🌙</span>
                 <!-- Sun icon (light mode active) -->
@@ -48,7 +50,7 @@
     </nav>
 
     {% for message in get_flashed_messages() %}
-        <div class="alert">{{ message }}</div>
+    <div class="alert">{{ message }}</div>
     {% endfor %}
 
     <main>
@@ -69,4 +71,5 @@
         }
     </script>
 </body>
+
 </html>

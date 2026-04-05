@@ -157,7 +157,22 @@ def dashboard():
                     c.execute(f"SELECT column_name FROM user_tab_columns WHERE table_name = '{t}' ORDER BY column_id")
                     cols = [col[0] for col in c.fetchall()]
                     c.execute(f"SELECT * FROM {t}")
-                    db_view[t] = {'cols': cols, 'rows': c.fetchall()}
+                    rows = c.fetchall()
+
+                    processed_rows = []
+                    for row in rows:
+                        new_row = []
+                        for val in row:
+                            if hasattr(val, "read"):   # this is a LOB (CLOB/BLOB)
+                                try:
+                                    new_row.append(val.read())
+                                except:
+                                    new_row.append(str(val))
+                            else:
+                                new_row.append(val)
+                        processed_rows.append(new_row)
+
+                    db_view[t] = {'cols': cols, 'rows': processed_rows}
                 except:
                     db_view[t] = {'cols': [], 'rows': []}
             data['db_view'] = db_view

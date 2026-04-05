@@ -42,13 +42,15 @@
         </label>
     </div>
     {% else %}
-    <section><p>This test has no questions yet.</p></section>
+    <section>
+        <p>This test has no questions yet.</p>
+    </section>
     {% endfor %}
 
     {% if qs %}
     <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
         <button type="submit" id="submit-test-btn"
-                onclick="return confirm('Submit your answers? This cannot be undone.')">
+            onclick="return confirm('Submit your answers? This cannot be undone.')">
             Submit Assessment
         </button>
     </div>
@@ -56,23 +58,23 @@
 </form>
 
 <script>
-// Highlight selected radio option visually
-document.querySelectorAll('.option-label input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        // clear siblings
-        const name = this.name;
-        document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-            r.closest('.option-label').style.background   = '';
-            r.closest('.option-label').style.borderColor  = '';
-            r.closest('.option-label').style.color        = '';
+    // Highlight selected radio option visually
+    document.querySelectorAll('.option-label input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            // clear siblings
+            const name = this.name;
+            document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                r.closest('.option-label').style.background = '';
+                r.closest('.option-label').style.borderColor = '';
+                r.closest('.option-label').style.color = '';
+            });
+            // highlight selected
+            const lbl = this.closest('.option-label');
+            lbl.style.background = 'rgba(124,106,255,0.18)';
+            lbl.style.borderColor = 'var(--accent)';
+            lbl.style.color = 'var(--text-primary)';
         });
-        // highlight selected
-        const lbl = this.closest('.option-label');
-        lbl.style.background  = 'rgba(124,106,255,0.18)';
-        lbl.style.borderColor = 'var(--accent)';
-        lbl.style.color       = 'var(--text-primary)';
     });
-});
 </script>
 
 {% endblock %}

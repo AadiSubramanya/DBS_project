@@ -18,7 +18,8 @@
 
 <section>
     <h3>Create Subject</h3>
-    <form action="/admin/action" method="POST" style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
+    <form action="/admin/action" method="POST"
+        style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
         <input type="hidden" name="action_type" value="add_subject">
         <label style="flex:1 1 180px;">
             Subject Name
@@ -36,7 +37,13 @@
     <h3>Subject Management</h3>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Name</th><th>Description</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for s in data.subjects_list %}
                 <tr>
@@ -51,7 +58,9 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="3" class="text-muted">No subjects yet.</td></tr>
+                <tr>
+                    <td colspan="3" class="text-muted">No subjects yet.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -62,7 +71,14 @@
     <h3>User Management</h3>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>ID</th><th>User</th><th>Role</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for u in data.users %}
                 <tr>
@@ -98,12 +114,16 @@
         <h4>{{ tname }}</h4>
         <div class="table-wrapper">
             <table>
-                <thead><tr>{% for col in content.cols %}<th>{{ col }}</th>{% endfor %}</tr></thead>
+                <thead>
+                    <tr>{% for col in content.cols %}<th>{{ col }}</th>{% endfor %}</tr>
+                </thead>
                 <tbody>
                     {% for row in content.rows %}
                     <tr>{% for val in row %}<td>{{ val }}</td>{% endfor %}</tr>
                     {% else %}
-                    <tr><td colspan="{{ content.cols|length }}" class="text-muted">No data.</td></tr>
+                    <tr>
+                        <td colspan="{{ content.cols|length }}" class="text-muted">No data.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -113,14 +133,14 @@
 </section>
 
 <script>
-function showTable(name) {
-    document.querySelectorAll('.db-table-view').forEach(el => el.style.display = 'none');
-    const target = document.getElementById('dbtable-' + name);
-    if (target) target.style.display = 'block';
-}
-// Show first table on load
-const sel = document.getElementById('db-table-selector');
-if (sel && sel.options.length) showTable(sel.options[0].value);
+    function showTable(name) {
+        document.querySelectorAll('.db-table-view').forEach(el => el.style.display = 'none');
+        const target = document.getElementById('dbtable-' + name);
+        if (target) target.style.display = 'block';
+    }
+    // Show first table on load
+    const sel = document.getElementById('db-table-selector');
+    if (sel && sel.options.length) showTable(sel.options[0].value);
 </script>
 
 {% endif %}
@@ -130,7 +150,8 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
 
 <section>
     <h3>Create New Test</h3>
-    <form action="/instructor/action" method="POST" style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
+    <form action="/instructor/action" method="POST"
+        style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
         <input type="hidden" name="type" value="test">
         <label style="flex:1 1 180px;">
             Subject
@@ -155,7 +176,14 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
     <h3>Your Tests</h3>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Title</th><th>Subject</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for t in data.tests %}
                 <tr>
@@ -167,14 +195,18 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
                         </span>
                     </td>
                     <td style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                        <a class="link-action" href="/manage/{{ t[0] }}" id="manage-test-{{ t[0] }}">Manage Questions</a>
-                        <a class="link-action {{ 'link-danger' if t[4] }}" href="/instructor/toggle_test/{{ t[0] }}" id="toggle-test-{{ t[0] }}">
+                        <a class="link-action" href="/manage/{{ t[0] }}" id="manage-test-{{ t[0] }}">Manage
+                            Questions</a>
+                        <a class="link-action {{ 'link-danger' if t[4] }}" href="/instructor/toggle_test/{{ t[0] }}"
+                            id="toggle-test-{{ t[0] }}">
                             {{ 'Close Test' if t[4] else 'Go Live' }}
                         </a>
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="4" class="text-muted">No tests created yet.</td></tr>
+                <tr>
+                    <td colspan="4" class="text-muted">No tests created yet.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -191,12 +223,14 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
     {% if data.available %}
     <div style="display:flex; flex-direction:column; gap:0.75rem;">
         {% for t in data.available %}
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+        <div
+            style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-md);">
             <div>
                 <div style="font-weight:600; color:var(--text-primary);">{{ t[1] }}</div>
                 <div class="text-muted">{{ t[3] }} &nbsp;·&nbsp; {{ t[2] }} minutes</div>
             </div>
-            <a class="btn" href="/test/{{ t[0] }}" id="take-test-{{ t[0] }}" style="padding:0.5rem 1.1rem; font-size:0.83rem;">Take Test →</a>
+            <a class="btn" href="/test/{{ t[0] }}" id="take-test-{{ t[0] }}"
+                style="padding:0.5rem 1.1rem; font-size:0.83rem;">Take Test →</a>
         </div>
         {% endfor %}
     </div>
@@ -209,7 +243,13 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
     <h3>Past Results</h3>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Test</th><th>Score</th><th>Result</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Score</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for c in data.completed %}
                 <tr>
@@ -221,7 +261,9 @@ if (sel && sel.options.length) showTable(sel.options[0].value);
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="3" class="text-muted">No results yet.</td></tr>
+                <tr>
+                    <td colspan="3" class="text-muted">No results yet.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
