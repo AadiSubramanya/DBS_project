@@ -127,8 +127,24 @@
 
 <!-- STEP 4: Analytics -->
 <section>
-    <h3>Student Results Analytics</h3>
+    <h3>Test-wise Result Analytics</h3>
     {% if results %}
+    <div style="display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+        {% set total_stu = results|length %}
+        {% set st_sum = namespace(val=0) %}
+        {% for r in results %}
+            {% set pct = (r[1] / r[2] * 100) if r[2] else 0 %}
+            {% set st_sum.val = st_sum.val + pct %}
+        {% endfor %}
+        <div style="background:var(--bg-card); padding:1.5rem; border:1px solid var(--glass-border); flex:1; border-radius:var(--radius-md);">
+            <div class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Students Taken</div>
+            <div style="font-size:2rem; font-family:var(--font-display); font-weight:700;">{{ total_stu }}</div>
+        </div>
+        <div style="background:var(--bg-card); padding:1.5rem; border:1px solid var(--glass-border); flex:1; border-radius:var(--radius-md);">
+            <div class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Average Test Score</div>
+            <div style="font-size:2rem; font-family:var(--font-display); font-weight:700; color:var(--success);">{{ (st_sum.val / total_stu)|int }}%</div>
+        </div>
+    </div>
     <div class="table-wrapper">
         <table>
             <thead>

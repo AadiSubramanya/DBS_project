@@ -49,13 +49,26 @@
         </div>
     </nav>
 
-    {% for message in get_flashed_messages() %}
-    <div class="alert">{{ message }}</div>
-    {% endfor %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {% if category == 'error' %}alert-error{% else %}alert-success{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.opacity = '0';
+                setTimeout(function() { alert.remove(); }, 300);
+            }, 3000);
+        });
+    </script>
 
     <script>
         function toggleTheme() {

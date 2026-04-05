@@ -81,43 +81,6 @@ def logout():
     return redirect(url_for('login'))
 
 # ─────────────────────────────────────────
-# DATABASE MIGRATION TOOL
-# ─────────────────────────────────────────
-
-@app.route('/fix_database')
-def fix_database():
-    """Adds missing columns to existing tables without losing data."""
-    msgs = []
-    try:
-        conn = get_connection()
-        c = conn.cursor()
-        # Add subject_id to TESTS if missing
-        try:
-            c.execute("ALTER TABLE TESTS ADD subject_id NUMBER REFERENCES SUBJECTS(subject_id) ON DELETE SET NULL")
-            conn.commit()
-            msgs.append("Added subject_id to TESTS.")
-        except oracledb.DatabaseError as e:
-            if "00957" in str(e) or "already used" in str(e):
-                msgs.append("subject_id already exists in TESTS.")
-            else:
-                msgs.append(f"TESTS alter error: {e}")
-        # Add is_active to TESTS if missing
-        try:
-            c.execute("ALTER TABLE TESTS ADD is_active NUMBER DEFAULT 0 NOT NULL")
-            conn.commit()
-            msgs.append("Added is_active to TESTS.")
-        except oracledb.DatabaseError as e:
-            if "00957" in str(e) or "already used" in str(e):
-                msgs.append("is_active already exists in TESTS.")
-            else:
-                msgs.append(f"is_active alter error: {e}")
-        conn.close()
-    except Exception as e:
-        msgs.append(f"Connection error: {e}")
-    flash(" | ".join(msgs))
-    return redirect(url_for('dashboard'))
-
-# ─────────────────────────────────────────
 # DASHBOARD
 # ─────────────────────────────────────────
 
@@ -177,6 +140,22 @@ def dashboard():
                     db_view[t] = {'cols': [], 'rows': []}
             data['db_view'] = db_view
 
+            # System Wide Analytics
+            try:
+                c.execute("SELECT COUNT(*) FROM TEST_ATTEMPTS")
+                data['total_attempts'] = c.fetchone()[0]
+                
+                c.execute("SELECT AVG(CASE WHEN max_score > 0 THEN (score / max_score) * 100 ELSE 0 END) FROM TEST_ATTEMPTS")
+                avg = c.fetchone()[0]
+                data['avg_score'] = round(avg, 2) if avg else 0
+
+                c.execute("SELECT COUNT(*) FROM TESTS WHERE is_active = 1")
+                data['live_tests'] = c.fetchone()[0]
+            except Exception as e:
+                data['total_attempts'] = 0
+                data['avg_score'] = 0
+                data['live_tests'] = 0
+
         elif role == 'Instructor':
             try:
                 c.execute("SELECT subject_id, name FROM SUBJECTS ORDER BY name")
@@ -186,14 +165,29 @@ def dashboard():
 
             try:
                 c.execute("""
-                    SELECT t.test_id, t.title, t.duration_minutes, s.name, t.is_active
+                    SELECT t.test_id, t.title, t.duration_minutes, s.name, t.is_active, t.start_time
                     FROM TESTS t
                     LEFT JOIN SUBJECTS s ON t.subject_id = s.subject_id
                     WHERE t.creator_id = :1
                     ORDER BY t.test_id DESC
                 """, (uid,))
-                data['tests'] = c.fetchall()
-            except:
+                raw_tests = c.fetchall()
+                
+                import math
+                from datetime import datetime
+                processed_tests = []
+                for row in raw_tests:
+                    start_time = row[5]
+                    duration = row[2]
+                    is_active = row[4]
+                    remaining = 0
+                    if is_active and start_time:
+                        time_elapsed_secs = (datetime.now() - start_time).total_seconds()
+                        remaining = math.floor((duration * 60) - time_elapsed_secs)
+                    processed_tests.append((*row[:5], max(0, remaining)))
+                data['tests'] = processed_tests
+            except Exception as e:
+                print("Error loading tests:", e)
                 data['tests'] = []
 
         else:  # Student
@@ -203,6 +197,7 @@ def dashboard():
                     FROM TESTS t
                     LEFT JOIN SUBJECTS s ON t.subject_id = s.subject_id
                     WHERE t.is_active = 1
+                    AND SYSTIMESTAMP <= t.start_time + NUMTODSINTERVAL(t.duration_minutes, 'MINUTE')
                     AND t.test_id NOT IN (
                         SELECT test_id FROM TEST_ATTEMPTS WHERE student_id = :1
                     )
@@ -248,14 +243,14 @@ def admin_action():
             flash(f"Subject '{name}' created.")
         elif action_type == 'delete_subject':
             c.execute("DELETE FROM SUBJECTS WHERE subject_id = :1", (request.form['subject_id'],))
-            flash("Subject deleted.")
+            flash("Subject deleted.", 'success')
         elif action_type == 'delete_user':
             c.execute("DELETE FROM USERS WHERE user_id = :1", (request.form['user_id'],))
-            flash("User deleted.")
+            flash("User deleted.", 'success')
         conn.commit()
         conn.close()
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
     return redirect('/dashboard')
 
 # ─────────────────────────────────────────
@@ -284,12 +279,18 @@ def inst_action():
             new_tid = c.fetchone()[0]
             conn.commit()
             conn.close()
-            flash(f"Test '{title}' created! Now add questions below.")
+            flash(f"Test '{title}' created! Now add questions below.", 'success')
             return redirect(url_for('manage_test', tid=new_tid))
+        elif typ == 'delete_test':
+            c.execute("DELETE FROM TESTS WHERE test_id = :1 AND creator_id = :2", 
+                      (request.form.get('test_id'), session['user_id']))
+            conn.commit()
+            flash("Test deleted successfully.", 'success')
+
         conn.commit()
         conn.close()
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
     return redirect('/dashboard')
 
 @app.route('/instructor/toggle_test/<int:tid>')
@@ -304,7 +305,10 @@ def toggle_test(tid):
             flash("Test not found.")
         else:
             new_val = 0 if res[0] == 1 else 1
-            c.execute("UPDATE TESTS SET is_active = :1 WHERE test_id = :2", (new_val, tid))
+            if new_val == 1:
+                c.execute("UPDATE TESTS SET is_active = :1, start_time = SYSTIMESTAMP WHERE test_id = :2", (new_val, tid))
+            else:
+                c.execute("UPDATE TESTS SET is_active = :1 WHERE test_id = :2", (new_val, tid))
             conn.commit()
             flash("Test is now LIVE." if new_val == 1 else "Test closed.")
         conn.close()
@@ -370,7 +374,14 @@ def manage_test(tid):
             JOIN TEST_QUESTIONS tq ON q.question_id = tq.question_id
             WHERE tq.test_id = :1
         """, (tid,))
-        current_qs = c.fetchall()
+        
+        current_qs_raw = c.fetchall()
+        current_qs = []
+        for row in current_qs_raw:
+            new_row = list(row)
+            if hasattr(new_row[1], 'read'):
+                new_row[1] = new_row[1].read()
+            current_qs.append(new_row)
 
         # Questions in bank (same subject) but NOT yet in this test
         c.execute("""
@@ -379,20 +390,16 @@ def manage_test(tid):
             WHERE q.subject_id = :1
             AND q.question_id NOT IN (SELECT question_id FROM TEST_QUESTIONS WHERE test_id = :2)
         """, (sid, tid))
-        avail = c.fetchall()
-
-        # Student results analytics
-        c.execute("""
-            SELECT u.username, a.score, a.max_score, a.start_time
-            FROM TEST_ATTEMPTS a
-            JOIN USERS u ON a.student_id = u.user_id
-            WHERE a.test_id = :1
-            ORDER BY a.start_time DESC
-        """, (tid,))
-        results = c.fetchall()
+        avail_raw = c.fetchall()
+        avail = []
+        for row in avail_raw:
+            new_row = list(row)
+            if hasattr(new_row[1], 'read'):
+                new_row[1] = new_row[1].read()
+            avail.append(new_row)
 
         conn.close()
-        return render_template('manage.html', tid=tid, title=title, current_qs=current_qs, avail=avail, results=results)
+        return render_template('manage.html', tid=tid, title=title, current_qs=current_qs, avail=avail)
 
     except Exception as e:
         flash(str(e))
@@ -410,14 +417,14 @@ def test_view(tid):
         c = conn.cursor()
 
         # Verify test is live
-        c.execute("SELECT title, duration_minutes, subject_id FROM TESTS WHERE test_id = :1 AND is_active = 1", (tid,))
+        c.execute("SELECT title, duration_minutes, subject_id, start_time FROM TESTS WHERE test_id = :1 AND is_active = 1 AND SYSTIMESTAMP <= start_time + NUMTODSINTERVAL(duration_minutes, 'MINUTE')", (tid,))
         test_row = c.fetchone()
         if test_row is None:
-            flash("Test not found or not active.")
+            flash("Test not found, not active, or time has expired.")
             conn.close()
             return redirect('/dashboard')
 
-        test_title, duration, test_sid = test_row
+        test_title, duration, test_sid, start_time = test_row
 
         # Get subject name
         subject_name = 'General'
@@ -471,7 +478,7 @@ def test_view(tid):
             conn.commit()
             conn.close()
             log_audit(session['user_id'], f"Completed test {tid}, scored {score}/{max_score}")
-            flash(f"Test submitted! You scored {score} out of {max_score}.")
+            flash(f"Test submitted! You scored {score} out of {max_score}.", 'success')
             return redirect(url_for('dashboard'))
 
         # GET: show the test questions
@@ -481,14 +488,27 @@ def test_view(tid):
             JOIN TEST_QUESTIONS tq ON q.question_id = tq.question_id
             WHERE tq.test_id = :1
         """, (tid,))
-        qs = c.fetchall()
+        qs = []
+        for row in c.fetchall():
+            qs.append([row[0], row[1].read() if hasattr(row[1], 'read') else row[1], row[2], row[3], row[4], row[5]])
         conn.close()
 
-        info = (test_title, duration, subject_name)
+        import math
+        from datetime import datetime
+        # Calculate remaining time based on start_time and duration
+        # We need seconds until duration is exhausted.
+        # Although Oracle returns proper datetimes, let's keep things robust.
+        # start_time is a Python datetime object if cx_Oracle reads it as TIMESTAMP
+        time_elapsed_secs = (datetime.now() - start_time).total_seconds()
+        remaining_secs = math.floor((duration * 60) - time_elapsed_secs)
+        if remaining_secs <= 0:
+            remaining_secs = 1 # give 1 second so UI cleanly kicks out
+
+        info = (test_title, duration, subject_name, remaining_secs)
         return render_template('test.html', tid=tid, info=info, qs=qs)
 
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'error')
         return redirect('/dashboard')
 
 if __name__ == '__main__':

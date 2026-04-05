@@ -10,7 +10,7 @@
         <p>
             <strong>Subject:</strong> {{ info[2] or 'General' }}
             &nbsp;·&nbsp;
-            <strong>Duration:</strong> {{ info[1] }} minutes
+            <strong>Duration:</strong> {{ info[1] }} minutes (Time left: <span id="time-left" style="color:var(--accent); font-weight:bold;">--:--</span>)
         </p>
     </div>
     <div style="text-align:right;">
@@ -75,6 +75,27 @@
             lbl.style.color = 'var(--text-primary)';
         });
     });
+
+    // Auto-submit timer logic
+    let remainingSecs = {{ info[3] }};
+    const timeDisplay = document.getElementById('time-left');
+    const form = document.getElementById('test-form');
+
+    function updateTime() {
+        if (remainingSecs <= 0) {
+            timeDisplay.innerText = "00:00";
+            form.submit(); // auto-submit
+            return;
+        }
+        
+        let m = Math.floor(remainingSecs / 60);
+        let s = Math.floor(remainingSecs % 60);
+        timeDisplay.innerText = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        remainingSecs--;
+        setTimeout(updateTime, 1000);
+    }
+    
+    updateTime();
 </script>
 
 {% endblock %}

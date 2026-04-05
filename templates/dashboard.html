@@ -11,10 +11,29 @@
     <div class="avatar">{{ session['full_name'][0] | upper }}</div>
 </div>
 
-<a href="/fix_database" class="repair-link" title="Repair Database">⚙ Repair Database (Fix ORA-00942)</a>
+
 
 <!-- ============ ADMIN ============ -->
 {% if session['role'] == 'Admin' %}
+
+<section>
+    <h3>Overall System Analytics</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
+            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Attempts</div>
+            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display);">{{ data.total_attempts }}</div>
+        </div>
+        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
+            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Average App Score</div>
+            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display); color: var(--success);">{{ data.avg_score }}%</div>
+        </div>
+        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
+            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Currently Live Tests</div>
+            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display);">{{ data.live_tests }}</div>
+        </div>
+    </div>
+</section>
+
 
 <section>
     <h3>Create Subject</h3>
@@ -193,6 +212,11 @@
                         <span class="badge {{ 'badge-live' if t[4] else 'badge-draft' }}">
                             {{ 'Live' if t[4] else 'Draft' }}
                         </span>
+                        {% if t[4] %}
+                        <div style="font-size: 0.8rem; margin-top: 0.4rem; font-family: var(--font-body);" class="text-muted" id="timer-{{ t[0] }}" data-secs="{{ t[5] }}">
+                            Loading...
+                        </div>
+                        {% endif %}
                     </td>
                     <td style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                         <a class="link-action" href="/manage/{{ t[0] }}" id="manage-test-{{ t[0] }}">Manage
@@ -201,6 +225,11 @@
                             id="toggle-test-{{ t[0] }}">
                             {{ 'Close Test' if t[4] else 'Go Live' }}
                         </a>
+                        <form action="/instructor/action" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Delete this test? Sub-questions will be removed too.');">
+                            <input type="hidden" name="type" value="delete_test">
+                            <input type="hidden" name="test_id" value="{{ t[0] }}">
+                            <button type="submit" style="background:transparent; border:none; padding:0; margin:0; text-transform:none; letter-spacing:normal; text-decoration:underline; font-weight:400; color:var(--danger);" class="link-action" id="del-test-{{ t[0] }}">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}

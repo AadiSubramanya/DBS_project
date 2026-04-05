@@ -73,7 +73,6 @@ CREATE TABLE QUESTIONS (
     option_c VARCHAR2(500) NOT NULL,
     option_d VARCHAR2(500) NOT NULL,
     correct_option CHAR(1) CHECK (correct_option IN ('A', 'B', 'C', 'D')) NOT NULL,
-    difficulty VARCHAR2(10) CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
     status VARCHAR2(20) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved'))
 );
 
