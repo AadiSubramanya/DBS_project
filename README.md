@@ -1,84 +1,81 @@
-# Setup Guide: Online MCQ Test Management System
+# Online MCQ Test Management System
 
-This document provides a detailed, beginner-friendly walkthrough on how to set up the Python Flask frontend and Oracle Database backend locally on your Windows machine.
-
----
-
-## Part 1: Install Python Requirements
-
-Since we are not using a Virtual Environment (`venv`), we will install the required Python packages globally.
-
-1. **Open Anaconda Prompt** from your Windows Start Menu.
-2. Use the `cd` command to navigate to this project folder, for example:
-   ```bash
-   cd c:\Users\aadis\OneDrive\Desktop\dbs_project
-   ```
-3. Run the following command to install the required web framework bindings:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *(This will automatically install `Flask` for the web server and `oracledb` for the database connection).*
+A high-performance, secure, and modern web application for managing multiple-choice assessments. Built with **Flask** and backed by **Oracle Database**, this system features a stunning "Negated Newsprint" design and robust role-based access control (RBAC).
 
 ---
 
-## Part 2: Oracle Database Installation
+## 🚀 Key Features
 
-If you do not have Oracle Database installed yet, you will need **Oracle Database Express Edition (XE)**.
-
-1. **Download Oracle XE**: Search Google for "Oracle Database 21c Express Edition for Windows x64" and download the zip file.
-2. **Install**: Extract the folder and run `setup.exe`. 
-   > [!IMPORTANT] 
-   > During setup, you will be prompted to create a password for the administrative user accounts (`SYS`, `SYSTEM`, etc.). **Write this password down** because you will need it to connect the application!
-3. **Finish Setup**: Allow the installer to finish. It automatically creates the background Oracle services.
-
----
-
-## Part 3: Running the Schema Script
-
-Now we need to create the Tables inside the Oracle database.
-
-1. Open your Windows Start Menu and search for **SQL\*Plus**. Run it.
-2. It will ask for your Username and Password:
-   - **Enter user-name**: `system`
-   - **Enter password**: *(Type the password you created in Part 2. Note: The cursor will not move while typing, this is normal).*
-3. Now that you are logged into the database, tell SQL\*Plus to execute our SQL files. Type the following and press Enter:
-   ```sql
-   @c:\Users\aadis\OneDrive\Desktop\dbs_project\database\schema.sql
-   ```
-   *This command will create the `USERS`, `QUESTIONS`, and all corresponding tables.*
-4. Add the initial mock data (so you can log into the website as an admin):
-   ```sql
-   @c:\Users\aadis\OneDrive\Desktop\dbs_project\database\mock_data.sql
-   ```
+- **Dual-Role Dashboards**: Tailored experiences for Students, Instructors, and Admins.
+- **Advanced Result Analytics**: In-depth performance metrics for instructors, including per-question accuracy and score distributions.
+- **Smart Test Timers**: Server-synchronized countdowns with automated submission and low-time warnings.
+- **Modern UI/UX**: High-contrast, sharp-edged aesthetic with support for both Dark and Light modes.
+- **Secure Persistence**: Full Oracle SQL integration with audit logging and cascading data integrity.
+- **Dynamic Question Banking**: Reusable questions across multiple tests for efficient exam management.
 
 ---
 
-## Part 4: Connect the Python App to Oracle
+## 🛠️ Technology Stack
 
-1. In VS Code, open the file named **`db_config.py`**.
-2. Locate the line that says:
-   ```python
-   DB_PASSWORD = "your_password"
-   ```
-3. Change `"your_password"` to the actual password you created during the Oracle XE installation. Save the file.
+- **Backend**: Python 3.x, Flask
+- **Database**: Oracle Database (XE/Standard/Enterprise)
+- **Database Driver**: `oracledb` (Thin Mode)
+- **Frontend**: HTML5, CSS3 (Vanilla), Jinja2 Templates
+- **Typography**: Playfair Display, Inter, Lora, JetBrains Mono
 
 ---
 
-## Part 5: Start the Server
+## 📦 Prerequisites
 
-1. **Open Anaconda Prompt**.
-2. Make sure you are inside the project directory:
-   ```bash
-   cd c:\Users\aadis\OneDrive\Desktop\dbs_project
-   ```
-3. Run the Python application:
-   ```bash
-   python app.py
-   ```
-3. You should see a message stating that the development server is running.
-4. Open your Web Browser (Edge, Chrome) and go to:
-   ```
-   http://localhost:5000
-   ```
+1. **Python 3.8+** installed (Anaconda recommended).
+2. **Oracle Database Express Edition (XE)** or higher.
+3. **requirements.txt** dependencies installed.
 
-**You're done!** You can click "Login" and test it out. If everything was entered correctly, the Python script will securely route your HTML forms through the `db_config.py` straight into the Oracle Database.
+---
+
+## ⚙️ Local Setup Guide
+
+### 1. Install Dependencies
+Open your terminal (e.g., Anaconda Prompt) and run:
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Database Initialization
+1. Log into your Oracle instance via **SQL*Plus** or SQL Developer as `SYSTEM`.
+2. Execute the consolidated schema script:
+```sql
+@database/schema.sql
+```
+*Note: This script creates all tables, sequences, and initial seed data (Admin: admin/123, Teacher: teacher/123, Student: student/123).*
+
+### 3. Connection Configuration
+Open `db_config.py` and update your Oracle credentials:
+```python
+DB_USER = "system"
+DB_PASSWORD = "your_oracle_password"
+DB_DSN = "localhost:1521/xe"
+```
+
+### 4. Run the Application
+Start the Flask development server:
+```bash
+python app.py
+```
+Visit `http://localhost:5000` in your browser.
+
+---
+
+## 📂 Project Structure
+
+- `app.py`: Main application logic and routing.
+- `db_config.py`: Database connection factory and credentials.
+- `database/`: SQL scripts for schema definition and initial data.
+- `static/css/style.css`: Centralized design system and theme variables.
+- `templates/`: Dynamic Jinja2 HTML templates for all views.
+- `PROJECT_STRUCTURE.md`: Detailed file-by-file explorer guide.
+
+---
+
+## 📜 License
+This project is developed for educational purposes as part of a Database Management Systems (DBMS) coursework.
