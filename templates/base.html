@@ -7,8 +7,16 @@
     <title>{% block title %}MCQ Portal{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Apply saved theme before paint to avoid flash -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('mcq-theme');
+            if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
 </head>
 <body>
     <nav>
@@ -23,6 +31,19 @@
                 <span class="nav-sep">|</span>
                 <a href="/register">Register</a>
             {% endif %}
+
+            <span class="nav-sep">|</span>
+
+            <!-- Theme toggle button -->
+            <button class="theme-toggle" id="theme-toggle-btn"
+                    onclick="toggleTheme()"
+                    title="Switch theme"
+                    aria-label="Toggle light/dark mode">
+                <!-- Moon icon (dark mode active) -->
+                <span class="icon-dark" aria-hidden="true">🌙</span>
+                <!-- Sun icon (light mode active) -->
+                <span class="icon-light" aria-hidden="true">☀️</span>
+            </button>
         </div>
     </nav>
 
@@ -33,5 +54,19 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        function toggleTheme() {
+            var html = document.documentElement;
+            var isLight = html.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                html.removeAttribute('data-theme');
+                localStorage.setItem('mcq-theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('mcq-theme', 'light');
+            }
+        }
+    </script>
 </body>
 </html>
