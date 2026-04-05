@@ -69,14 +69,14 @@
         if (remainingSecs <= 0) {
             timeDisplay.innerText = "00:00";
             timeDisplay.style.color = "var(--danger)";
-            form.submit(); 
+            form.submit();
             return;
         }
-        
+
         let m = Math.floor(remainingSecs / 60);
         let s = Math.floor(remainingSecs % 60);
         timeDisplay.innerText = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-        
+
         // Critical time warning (last 2 mins)
         if (remainingSecs < 120) {
             timeDisplay.style.color = "var(--danger)";
@@ -86,9 +86,7 @@
         remainingSecs--;
         setTimeout(updateTime, 1000);
     }
-    
+
     updateTime();
 </script>
-{% endblock %}
-
 {% endblock %}
