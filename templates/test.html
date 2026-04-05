@@ -1,28 +1,78 @@
 {% extends 'base.html' %}
+{% block title %}{{ info[0] }} – MCQ Portal{% endblock %}
 {% block content %}
-<section>
-    <h2>Test: {{ info[0] }}</h2>
-    <p><b>Subject:</b> {{ info[2] or 'General' }} | <b>Duration:</b> {{ info[1] }} mins</p>
-    
-    <hr>
 
-    <form method="POST">
-        {% for q in qs %}
-        <div style="border-bottom: 1px dashed #ccc; padding: 15px 0;">
-            <p><b>Q{{ loop.index }}: {{ q[1] }}</b></p>
-            <label><input type="radio" name="q_{{ q[0] }}" value="A" required> A. {{ q[2] }}</label><br>
-            <label><input type="radio" name="q_{{ q[0] }}" value="B" required> B. {{ q[3] }}</label><br>
-            <label><input type="radio" name="q_{{ q[0] }}" value="C" required> C. {{ q[4] }}</label><br>
-            <label><input type="radio" name="q_{{ q[0] }}" value="D" required> D. {{ q[5] }}</label>
-        </div>
-        {% else %}
-        <p>No questions in this test.</p>
-        {% endfor %}
+<a href="/dashboard" class="back-link">← Back to Dashboard</a>
 
-        {% if qs %}
-        <br>
-        <button type="submit" onclick="return confirm('Submit test?')">Submit Assessment</button>
-        {% endif %}
-    </form>
-</section>
+<div class="dash-header" style="margin-bottom:1.5rem;">
+    <div>
+        <h2>{{ info[0] }}</h2>
+        <p>
+            <strong>Subject:</strong> {{ info[2] or 'General' }}
+            &nbsp;·&nbsp;
+            <strong>Duration:</strong> {{ info[1] }} minutes
+        </p>
+    </div>
+    <div style="text-align:right;">
+        <div style="font-size:2rem; font-weight:700; color:var(--accent-light);">{{ qs|length }}</div>
+        <div class="text-muted" style="font-size:0.8rem;">Questions</div>
+    </div>
+</div>
+
+<form method="POST" id="test-form">
+    {% for q in qs %}
+    <div class="question-card" id="question-{{ loop.index }}">
+        <p><span style="color:var(--text-muted); font-size:0.8rem;">Q{{ loop.index }}</span><br>{{ q[1] }}</p>
+
+        <label class="option-label">
+            <input type="radio" name="q_{{ q[0] }}" value="A" required>
+            <span><strong style="color:var(--accent-light);">A.</strong> {{ q[2] }}</span>
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q_{{ q[0] }}" value="B">
+            <span><strong style="color:var(--accent-light);">B.</strong> {{ q[3] }}</span>
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q_{{ q[0] }}" value="C">
+            <span><strong style="color:var(--accent-light);">C.</strong> {{ q[4] }}</span>
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q_{{ q[0] }}" value="D">
+            <span><strong style="color:var(--accent-light);">D.</strong> {{ q[5] }}</span>
+        </label>
+    </div>
+    {% else %}
+    <section><p>This test has no questions yet.</p></section>
+    {% endfor %}
+
+    {% if qs %}
+    <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+        <button type="submit" id="submit-test-btn"
+                onclick="return confirm('Submit your answers? This cannot be undone.')">
+            Submit Assessment
+        </button>
+    </div>
+    {% endif %}
+</form>
+
+<script>
+// Highlight selected radio option visually
+document.querySelectorAll('.option-label input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // clear siblings
+        const name = this.name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+            r.closest('.option-label').style.background   = '';
+            r.closest('.option-label').style.borderColor  = '';
+            r.closest('.option-label').style.color        = '';
+        });
+        // highlight selected
+        const lbl = this.closest('.option-label');
+        lbl.style.background  = 'rgba(124,106,255,0.18)';
+        lbl.style.borderColor = 'var(--accent)';
+        lbl.style.color       = 'var(--text-primary)';
+    });
+});
+</script>
+
 {% endblock %}

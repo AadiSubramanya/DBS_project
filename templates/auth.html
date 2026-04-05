@@ -1,32 +1,51 @@
 {% extends 'base.html' %}
+{% block title %}{{ title }} – MCQ Portal{% endblock %}
 {% block content %}
-<section>
-    <h2>{{ title }}</h2>
-    <form action="{{ '/register' if is_register else '/login' }}" method="POST">
-        {% if is_register %}
-            <label>Username: <input type="text" name="username" required></label>
-            <label>Full Name: <input type="text" name="full_name" required></label>
-            <label>Email: <input type="email" name="email" required></label>
-            <label>Role: 
-                <select name="role">
-                    <option value="Student">Student</option>
-                    <option value="Instructor">Instructor</option>
-                    <option value="Admin">Admin</option>
-                </select>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>{{ title }}</h2>
+        <p class="subtitle">
+            {% if is_register %}Create your account to get started{% else %}Welcome back — sign in to continue{% endif %}
+        </p>
+
+        <form action="{{ '/register' if is_register else '/login' }}" method="POST">
+            {% if is_register %}
+                <label>Username
+                    <input type="text" name="username" placeholder="e.g. john_doe" required>
+                </label>
+                <label>Full Name
+                    <input type="text" name="full_name" placeholder="John Doe" required>
+                </label>
+                <label>Email
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </label>
+                <label>Role
+                    <select name="role">
+                        <option value="Student">Student</option>
+                        <option value="Instructor">Instructor</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </label>
+            {% else %}
+                <label>Username
+                    <input type="text" name="username" placeholder="Your username" required>
+                </label>
+            {% endif %}
+
+            <label>Password
+                <input type="password" name="password" placeholder="••••••••" required>
             </label>
+
+            <button type="submit" id="auth-submit-btn">
+                {{ 'Create Account' if is_register else 'Sign In' }}
+            </button>
+        </form>
+
+        {% if is_register %}
+            <p>Already have an account? <a href="/login">Sign in here</a></p>
         {% else %}
-            <label>Username: <input type="text" name="username" required></label>
+            <p>New here? <a href="/register">Create an account</a></p>
         {% endif %}
-        
-        <label>Password: <input type="password" name="password" required></label>
-        
-        <button type="submit">{{ 'Create Account' if is_register else 'Sign In' }}</button>
-    </form>
-    
-    {% if is_register %}
-        <p>Already have an account? <a href="/login">Login here</a></p>
-    {% else %}
-        <p>New user? <a href="/register">Register here</a></p>
-    {% endif %}
-</section>
+    </div>
+</div>
 {% endblock %}

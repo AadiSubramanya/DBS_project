@@ -1,108 +1,136 @@
 {% extends 'base.html' %}
+{% block title %}Manage Test – MCQ Portal{% endblock %}
 {% block content %}
-<h2>Manage Test: {{ title }}</h2>
-<a href="/dashboard">&larr; Back to Dashboard</a>
-<hr>
 
-<!-- STEP 1: Author a new question and add it directly -->
+<a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+<div class="dash-header" style="margin-bottom:1.5rem;">
+    <div>
+        <h2>{{ title }}</h2>
+        <p>Manage questions and publish this test when ready.</p>
+    </div>
+    <a href="/dashboard" class="btn btn-ghost" style="flex-shrink:0;">Go Live from Dashboard</a>
+</div>
+
+<!-- STEP 1: Add new question -->
 <section>
-    <h3>Add New Question to This Test</h3>
+    <h3>Add New Question</h3>
     <form method="POST" action="/manage/{{ tid }}">
         <input type="hidden" name="action" value="create_and_add">
-        <label>Question:<br><input type="text" name="text" placeholder="Enter question text" required></label>
-        <label>Option A:<br><input type="text" name="a" required></label>
-        <label>Option B:<br><input type="text" name="b" required></label>
-        <label>Option C:<br><input type="text" name="c" required></label>
-        <label>Option D:<br><input type="text" name="d" required></label>
-        <label>Correct Answer (A/B/C/D):<br><input type="text" name="ans" maxlength="1" required style="width:60px;"></label>
-        <br><button type="submit">Upload Question to Test</button>
+        <label>Question text
+            <input type="text" name="text" placeholder="Enter the question…" required>
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <label>Option A
+                <input type="text" name="a" placeholder="Answer A" required>
+            </label>
+            <label>Option B
+                <input type="text" name="b" placeholder="Answer B" required>
+            </label>
+            <label>Option C
+                <input type="text" name="c" placeholder="Answer C" required>
+            </label>
+            <label>Option D
+                <input type="text" name="d" placeholder="Answer D" required>
+            </label>
+        </div>
+        <label style="max-width:120px;">
+            Correct Answer
+            <input type="text" name="ans" maxlength="1" placeholder="A/B/C/D" required style="text-transform:uppercase; text-align:center; letter-spacing:0.15em;">
+        </label>
+        <div>
+            <button type="submit" id="upload-question-btn">Upload Question to Test</button>
+        </div>
     </form>
 </section>
 
-<hr>
-
-<!-- STEP 2: Optionally pick from existing bank questions -->
+<!-- STEP 2: Pick from question bank -->
 {% if avail %}
 <section>
-    <h3>Pick from Question Bank (same subject)</h3>
-    <table>
-        <tr><th>#</th><th>Question</th><th>Action</th></tr>
-        {% for q in avail %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ q[1] }}</td>
-            <td>
-                <form method="POST" action="/manage/{{ tid }}" style="margin:0;">
-                    <input type="hidden" name="action" value="add">
-                    <input type="hidden" name="qid" value="{{ q[0] }}">
-                    <button type="submit">Add to Test</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <h3>Question Bank (same subject – {{ avail|length }} available)</h3>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>#</th><th>Question</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for q in avail %}
+                <tr>
+                    <td class="text-muted">{{ loop.index }}</td>
+                    <td>{{ q[1] }}</td>
+                    <td>
+                        <form method="POST" action="/manage/{{ tid }}" style="display:inline; flex-direction:row;">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="qid" value="{{ q[0] }}">
+                            <button type="submit" class="btn-add" id="add-bank-q-{{ q[0] }}">Add to Test</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
-<hr>
 {% endif %}
 
-<!-- STEP 3: Review current questions in this test -->
+<!-- STEP 3: Current questions in test -->
 <section>
-    <h3>Questions Currently in This Test ({{ current_qs|length }} total)</h3>
+    <h3>Questions in This Test &nbsp;<span class="text-muted" style="font-size:0.85rem; font-weight:400; text-transform:none; letter-spacing:normal;">({{ current_qs|length }} total)</span></h3>
     {% if current_qs %}
-    <table>
-        <tr><th>#</th><th>Question</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Answer</th><th>Action</th></tr>
-        {% for q in current_qs %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ q[1] }}</td>
-            <td>{{ q[2] }}</td>
-            <td>{{ q[3] }}</td>
-            <td>{{ q[4] }}</td>
-            <td>{{ q[5] }}</td>
-            <td><b>{{ q[6] }}</b></td>
-            <td>
-                <form method="POST" action="/manage/{{ tid }}" style="margin:0;">
-                    <input type="hidden" name="action" value="remove">
-                    <input type="hidden" name="qid" value="{{ q[0] }}">
-                    <button type="submit">Remove</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>#</th><th>Question</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Answer</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for q in current_qs %}
+                <tr>
+                    <td class="text-muted">{{ loop.index }}</td>
+                    <td>{{ q[1] }}</td>
+                    <td>{{ q[2] }}</td>
+                    <td>{{ q[3] }}</td>
+                    <td>{{ q[4] }}</td>
+                    <td>{{ q[5] }}</td>
+                    <td><span class="badge badge-live">{{ q[6] }}</span></td>
+                    <td>
+                        <form method="POST" action="/manage/{{ tid }}" style="display:inline; flex-direction:row;">
+                            <input type="hidden" name="action" value="remove">
+                            <input type="hidden" name="qid" value="{{ q[0] }}">
+                            <button type="submit" id="remove-q-{{ q[0] }}">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
-    <p>No questions added yet. Use the form above to add questions one by one.</p>
+    <p>No questions added yet. Use the form above to add questions.</p>
     {% endif %}
 </section>
 
-<hr>
-
-<!-- STEP 4: Go Live -->
-<section>
-    <h3>Publish</h3>
-    <p>When ready, go back to the dashboard and click "Upload &amp; Start Test" to make it live for students.</p>
-    <a href="/dashboard">Go to Dashboard</a>
-</section>
-
-<hr>
-
-<!-- STEP 5: Analytics -->
+<!-- STEP 4: Analytics -->
 <section>
     <h3>Student Results Analytics</h3>
     {% if results %}
-    <table>
-        <tr><th>Student</th><th>Score</th><th>Out of</th><th>Date</th></tr>
-        {% for r in results %}
-        <tr>
-            <td>{{ r[0] }}</td>
-            <td>{{ r[1] }}</td>
-            <td>{{ r[2] }}</td>
-            <td>{{ r[3] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Student</th><th>Score</th><th>Out of</th><th>Date</th><th>Result</th></tr></thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td class="text-muted">{{ r[3] }}</td>
+                    <td>
+                        {% set pct = (r[1] / r[2] * 100)|int if r[2] else 0 %}
+                        <span class="badge {{ 'badge-live' if pct >= 50 else 'badge-draft' }}">{{ pct }}%</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <p>No students have taken this test yet.</p>
     {% endif %}
 </section>
+
 {% endblock %}
