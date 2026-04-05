@@ -165,27 +165,19 @@ def dashboard():
 
             try:
                 c.execute("""
-                    SELECT t.test_id, t.title, t.duration_minutes, s.name, t.is_active, t.start_time
+                    SELECT t.test_id, t.title, t.duration_minutes, s.name, t.is_active,
+                        CASE WHEN t.is_active = 1 AND t.start_time IS NOT NULL THEN
+                            GREATEST(0, FLOOR(
+                                (CAST(t.start_time AS DATE) + t.duration_minutes/1440 - SYSDATE) * 86400
+                            ))
+                        ELSE 0 END as remaining_secs,
+                        t.start_time
                     FROM TESTS t
                     LEFT JOIN SUBJECTS s ON t.subject_id = s.subject_id
                     WHERE t.creator_id = :1
                     ORDER BY t.test_id DESC
                 """, (uid,))
-                raw_tests = c.fetchall()
-                
-                import math
-                from datetime import datetime
-                processed_tests = []
-                for row in raw_tests:
-                    start_time = row[5]
-                    duration = row[2]
-                    is_active = row[4]
-                    remaining = 0
-                    if is_active and start_time:
-                        time_elapsed_secs = (datetime.now() - start_time).total_seconds()
-                        remaining = math.floor((duration * 60) - time_elapsed_secs)
-                    processed_tests.append((*row[:5], max(0, remaining)))
-                data['tests'] = processed_tests
+                data['tests'] = c.fetchall()
             except Exception as e:
                 print("Error loading tests:", e)
                 data['tests'] = []
@@ -416,15 +408,23 @@ def test_view(tid):
         conn = get_connection()
         c = conn.cursor()
 
-        # Verify test is live
-        c.execute("SELECT title, duration_minutes, subject_id, start_time FROM TESTS WHERE test_id = :1 AND is_active = 1 AND SYSTIMESTAMP <= start_time + NUMTODSINTERVAL(duration_minutes, 'MINUTE')", (tid,))
+        # Verify test is live and get remaining time via Oracle
+        c.execute("""
+            SELECT t.title, t.duration_minutes, t.subject_id,
+                GREATEST(1, FLOOR(
+                    (CAST(t.start_time AS DATE) + t.duration_minutes/1440 - SYSDATE) * 86400
+                )) as remaining_secs
+            FROM TESTS t
+            WHERE t.test_id = :1 AND t.is_active = 1
+            AND SYSDATE <= CAST(t.start_time AS DATE) + t.duration_minutes/1440
+        """, (tid,))
         test_row = c.fetchone()
         if test_row is None:
-            flash("Test not found, not active, or time has expired.")
+            flash("Test not found, not active, or time has expired.", 'error')
             conn.close()
             return redirect('/dashboard')
 
-        test_title, duration, test_sid, start_time = test_row
+        test_title, duration, test_sid, remaining_secs = test_row
 
         # Get subject name
         subject_name = 'General'
@@ -493,19 +493,107 @@ def test_view(tid):
             qs.append([row[0], row[1].read() if hasattr(row[1], 'read') else row[1], row[2], row[3], row[4], row[5]])
         conn.close()
 
-        import math
-        from datetime import datetime
-        # Calculate remaining time based on start_time and duration
-        # We need seconds until duration is exhausted.
-        # Although Oracle returns proper datetimes, let's keep things robust.
-        # start_time is a Python datetime object if cx_Oracle reads it as TIMESTAMP
-        time_elapsed_secs = (datetime.now() - start_time).total_seconds()
-        remaining_secs = math.floor((duration * 60) - time_elapsed_secs)
-        if remaining_secs <= 0:
-            remaining_secs = 1 # give 1 second so UI cleanly kicks out
-
-        info = (test_title, duration, subject_name, remaining_secs)
+        info = (test_title, duration, subject_name, int(remaining_secs))
         return render_template('test.html', tid=tid, info=info, qs=qs)
+
+    except Exception as e:
+        flash(str(e), 'error')
+        return redirect('/dashboard')
+
+# ─────────────────────────────────────────
+# TEST ANALYTICS (Instructor)
+# ─────────────────────────────────────────
+
+@app.route('/instructor/analytics/<int:tid>')
+@role_required('Instructor')
+def test_analytics(tid):
+    try:
+        conn = get_connection()
+        c = conn.cursor()
+
+        # Verify ownership
+        c.execute("SELECT title, is_active FROM TESTS WHERE test_id = :1 AND creator_id = :2", (tid, session['user_id']))
+        row = c.fetchone()
+        if not row:
+            flash("Test not found or access denied.", 'error')
+            return redirect('/dashboard')
+        test_title, is_active = row
+
+        # Overall stats
+        c.execute("""
+            SELECT COUNT(*),
+                   ROUND(AVG(CASE WHEN max_score > 0 THEN score/max_score*100 ELSE 0 END), 1),
+                   ROUND(MAX(CASE WHEN max_score > 0 THEN score/max_score*100 ELSE 0 END), 1),
+                   ROUND(MIN(CASE WHEN max_score > 0 THEN score/max_score*100 ELSE 0 END), 1),
+                   SUM(CASE WHEN max_score > 0 AND score/max_score >= 0.5 THEN 1 ELSE 0 END)
+            FROM TEST_ATTEMPTS WHERE test_id = :1
+        """, (tid,))
+        r = c.fetchone()
+        total = int(r[0] or 0)
+        stats = {
+            'total': total,
+            'avg_pct': float(r[1] or 0),
+            'max_pct': float(r[2] or 0),
+            'min_pct': float(r[3] or 0),
+            'pass_count': int(r[4] or 0),
+            'pass_rate': round(int(r[4] or 0) / total * 100, 1) if total > 0 else 0,
+        }
+
+        # Score distribution buckets: 0-25, 26-50, 51-75, 76-100
+        c.execute("""
+            SELECT
+                SUM(CASE WHEN max_score>0 AND score/max_score*100 <= 25 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN max_score>0 AND score/max_score*100 > 25 AND score/max_score*100 <= 50 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN max_score>0 AND score/max_score*100 > 50 AND score/max_score*100 <= 75 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN max_score>0 AND score/max_score*100 > 75 THEN 1 ELSE 0 END)
+            FROM TEST_ATTEMPTS WHERE test_id = :1
+        """, (tid,))
+        dist = c.fetchone()
+        stats['dist'] = [int(d or 0) for d in dist]
+
+        # Per-question accuracy
+        c.execute("""
+            SELECT q.question_id, q.text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option,
+                   COUNT(sa.attempt_id) as attempts,
+                   SUM(sa.is_correct) as correct_count,
+                   ROUND(SUM(sa.is_correct) * 100.0 / NULLIF(COUNT(sa.attempt_id), 0), 1) as accuracy
+            FROM QUESTIONS q
+            JOIN TEST_QUESTIONS tq ON tq.question_id = q.question_id
+            LEFT JOIN STUDENT_ANSWERS sa ON sa.question_id = q.question_id
+                AND sa.attempt_id IN (SELECT attempt_id FROM TEST_ATTEMPTS WHERE test_id = :1)
+            WHERE tq.test_id = :1
+            GROUP BY q.question_id, q.text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option
+            ORDER BY accuracy ASC NULLS LAST
+        """, (tid, tid))
+        q_rows = c.fetchall()
+        q_stats = []
+        for i, qr in enumerate(q_rows):
+            text = qr[1].read() if hasattr(qr[1], 'read') else qr[1]
+            q_stats.append({
+                'num': i + 1,
+                'text': text,
+                'opt_a': qr[2], 'opt_b': qr[3], 'opt_c': qr[4], 'opt_d': qr[5],
+                'correct': (qr[6] or '').strip().upper(),
+                'attempts': int(qr[7] or 0),
+                'correct_count': int(qr[8] or 0),
+                'accuracy': float(qr[9] or 0),
+            })
+
+        # Individual student results
+        c.execute("""
+            SELECT u.full_name, u.username, a.score, a.max_score,
+                   ROUND(CASE WHEN a.max_score > 0 THEN a.score/a.max_score*100 ELSE 0 END, 1)
+            FROM TEST_ATTEMPTS a
+            JOIN USERS u ON u.user_id = a.student_id
+            WHERE a.test_id = :1
+            ORDER BY a.score DESC
+        """, (tid,))
+        student_results = c.fetchall()
+
+        conn.close()
+        return render_template('test_analytics.html',
+            title=test_title, tid=tid, stats=stats,
+            q_stats=q_stats, student_results=student_results, is_active=is_active)
 
     except Exception as e:
         flash(str(e), 'error')

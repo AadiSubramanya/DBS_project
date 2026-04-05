@@ -225,6 +225,11 @@
                             id="toggle-test-{{ t[0] }}">
                             {{ 'Close Test' if t[4] else 'Go Live' }}
                         </a>
+                        {% if not t[4] and t[6] %}
+                        <a class="link-action" href="/instructor/analytics/{{ t[0] }}" id="analytics-test-{{ t[0] }}">Results</a>
+                        {% else %}
+                        <span style="color:var(--text-muted); font-size:0.82rem; cursor:not-allowed;" title="{{ 'Close the test first to view results' if t[4] else 'Test was never run' }}">Results</span>
+                        {% endif %}
                         <form action="/instructor/action" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Delete this test? Sub-questions will be removed too.');">
                             <input type="hidden" name="type" value="delete_test">
                             <input type="hidden" name="test_id" value="{{ t[0] }}">
@@ -243,6 +248,29 @@
 </section>
 
 {% endif %}
+
+<script>
+// ── Instructor live-test countdown timers ──
+document.querySelectorAll('[id^="timer-"]').forEach(function(el) {
+    var secs = parseInt(el.getAttribute('data-secs') || '0', 10);
+    if (isNaN(secs) || secs <= 0) { el.textContent = 'Expired'; return; }
+    (function tick() {
+        if (secs <= 0) {
+            el.textContent = '⏱ Time up';
+            el.style.color = 'var(--danger)';
+            setTimeout(function() { location.reload(); }, 2000);
+            return;
+        }
+        var m = Math.floor(secs / 60);
+        var s = secs % 60;
+        el.textContent = '⏱ ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + ' remaining';
+        if (secs <= 120) el.style.color = 'var(--danger)';
+        else el.style.color = 'var(--accent)';
+        secs--;
+        setTimeout(tick, 1000);
+    })();
+});
+</script>
 
 <!-- ============ STUDENT ============ -->
 {% if session['role'] == 'Student' %}
