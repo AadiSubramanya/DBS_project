@@ -790,6 +790,89 @@ tbody tr:hover {
     color: var(--bg-primary);
 }
 
+/* ---------- Analytics / Stat Cards ---------- */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-grid-small {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    text-align: left;
+}
+
+.stat-card-center {
+    padding: 1.25rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.stat-label {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.stat-card-center .stat-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.08em;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--text-primary);
+}
+
+.stat-card-center .stat-value {
+    font-size: 2.2rem;
+}
+
+.text-accent { color: var(--accent); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+
+/* Progress Bars */
+.progress-container {
+    height: 10px;
+    background: var(--glass-border);
+    border: 1px solid var(--glass-border);
+}
+
+.progress-container.progress-sm {
+    height: 4px;
+    margin-top: 0.75rem;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+/* Form layout utility */
+.form-flex-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
     nav {

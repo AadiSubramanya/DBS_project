@@ -129,4 +129,127 @@ INSERT INTO SUBJECTS (name, description) VALUES ('Chemistry', 'Structure and pro
 INSERT INTO SUBJECTS (name, description) VALUES ('Biology', 'Study of living organisms');
 INSERT INTO SUBJECTS (name, description) VALUES ('Computer Science', 'Programming and algorithms');
 
-COMMIT;
+--procedures
+-- Register User
+CREATE OR REPLACE PROCEDURE sp_register_user (
+    p_username      IN USERS.username%TYPE,
+    p_password_hash IN USERS.password_hash%TYPE,
+    p_full_name     IN USERS.full_name%TYPE,
+    p_role          IN USERS.role%TYPE,
+    p_email         IN USERS.email%TYPE
+) AS
+BEGIN
+    INSERT INTO USERS (username, password_hash, full_name, role, email)
+    VALUES (p_username, p_password_hash, p_full_name, p_role, p_email);
+END;
+/
+
+-- Create Test and return test_id
+CREATE OR REPLACE PROCEDURE sp_create_test (
+    p_creator_id       IN TESTS.creator_id%TYPE,
+    p_subject_id       IN TESTS.subject_id%TYPE,
+    p_title            IN TESTS.title%TYPE,
+    p_duration_minutes IN TESTS.duration_minutes%TYPE,
+    p_test_id          OUT TESTS.test_id%TYPE
+) AS
+BEGIN
+    INSERT INTO TESTS (creator_id, subject_id, title, duration_minutes, is_active)
+    VALUES (p_creator_id, p_subject_id, p_title, p_duration_minutes, 0)
+    RETURNING test_id INTO p_test_id;
+END;
+/
+
+-- Create Question and add to Test
+CREATE OR REPLACE PROCEDURE sp_create_question_and_add (
+    p_subject_id      IN QUESTIONS.subject_id%TYPE,
+    p_instructor_id   IN QUESTIONS.instructor_id%TYPE,
+    p_text            IN QUESTIONS.text%TYPE,
+    p_option_a        IN QUESTIONS.option_a%TYPE,
+    p_option_b        IN QUESTIONS.option_b%TYPE,
+    p_option_c        IN QUESTIONS.option_c%TYPE,
+    p_option_d        IN QUESTIONS.option_d%TYPE,
+    p_correct_option  IN QUESTIONS.correct_option%TYPE,
+    p_test_id         IN TEST_QUESTIONS.test_id%TYPE
+) AS
+    v_question_id QUESTIONS.question_id%TYPE;
+BEGIN
+    INSERT INTO QUESTIONS (
+        subject_id, instructor_id, text,
+        option_a, option_b, option_c, option_d,
+        correct_option, status
+    )
+    VALUES (
+        p_subject_id, p_instructor_id, p_text,
+        p_option_a, p_option_b, p_option_c, p_option_d,
+        UPPER(p_correct_option), 'Approved'
+    )
+    RETURNING question_id INTO v_question_id;
+
+    INSERT INTO TEST_QUESTIONS (test_id, question_id, points)
+    VALUES (p_test_id, v_question_id, 1);
+END;
+/
+
+-- Create Test Attempt
+CREATE OR REPLACE PROCEDURE sp_create_test_attempt (
+    p_test_id     IN TEST_ATTEMPTS.test_id%TYPE,
+    p_student_id  IN TEST_ATTEMPTS.student_id%TYPE,
+    p_max_score   IN TEST_ATTEMPTS.max_score%TYPE,
+    p_attempt_id  OUT TEST_ATTEMPTS.attempt_id%TYPE
+) AS
+BEGIN
+    INSERT INTO TEST_ATTEMPTS (test_id, student_id, score, max_score)
+    VALUES (p_test_id, p_student_id, 0, p_max_score)
+    RETURNING attempt_id INTO p_attempt_id;
+END;
+/
+
+-- Update Final Score
+CREATE OR REPLACE PROCEDURE sp_update_test_score (
+    p_attempt_id IN TEST_ATTEMPTS.attempt_id%TYPE,
+    p_score      IN TEST_ATTEMPTS.score%TYPE
+) AS
+BEGIN
+    UPDATE TEST_ATTEMPTS
+    SET score = p_score
+    WHERE attempt_id = p_attempt_id;
+END;
+/
+
+--triggers
+-- Audit user registration
+CREATE OR REPLACE TRIGGER trg_audit_user_insert
+AFTER INSERT ON USERS
+FOR EACH ROW
+BEGIN
+    INSERT INTO AUDIT_LOGS (user_id, action)
+    VALUES (:NEW.user_id, 'User registered');
+END;
+/
+
+-- Audit user deletion
+CREATE OR REPLACE TRIGGER trg_audit_user_delete
+AFTER DELETE ON USERS
+FOR EACH ROW
+BEGIN
+    INSERT INTO AUDIT_LOGS (user_id, action)
+    VALUES (:OLD.user_id, 'User deleted');
+END;
+/
+
+-- Audit test completion
+CREATE OR REPLACE TRIGGER trg_audit_test_attempt
+AFTER INSERT OR UPDATE OF score ON TEST_ATTEMPTS
+FOR EACH ROW
+WHEN (NEW.score IS NOT NULL)
+BEGIN
+    INSERT INTO AUDIT_LOGS (user_id, action)
+    VALUES (
+        :NEW.student_id,
+        'Completed test ' || :NEW.test_id ||
+        ' with score ' || :NEW.score || '/' || :NEW.max_score
+    );
+END;
+/
+
+commit;

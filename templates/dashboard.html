@@ -18,18 +18,18 @@
 
 <section>
     <h3>Overall System Analytics</h3>
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
-            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Attempts</div>
-            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display);">{{ data.total_attempts }}</div>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Attempts</div>
+            <div class="stat-value">{{ data.total_attempts }}</div>
         </div>
-        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
-            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Average App Score</div>
-            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display); color: var(--success);">{{ data.avg_score }}%</div>
+        <div class="stat-card">
+            <div class="stat-label">Average App Score</div>
+            <div class="stat-value text-success">{{ data.avg_score }}%</div>
         </div>
-        <div class="stat-card" style="padding: 1.5rem; border: 1px solid var(--glass-border); border-radius: var(--radius-md);">
-            <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Currently Live Tests</div>
-            <div style="font-size: 2rem; font-weight: 700; font-family: var(--font-display);">{{ data.live_tests }}</div>
+        <div class="stat-card">
+            <div class="stat-label">Currently Live Tests</div>
+            <div class="stat-value">{{ data.live_tests }}</div>
         </div>
     </div>
 </section>
@@ -37,8 +37,7 @@
 
 <section>
     <h3>Create Subject</h3>
-    <form action="/admin/action" method="POST"
-        style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
+    <form action="/admin/action" method="POST" class="form-flex-row">
         <input type="hidden" name="action_type" value="add_subject">
         <label style="flex:1 1 180px;">
             Subject Name
@@ -175,8 +174,7 @@
 
 <section>
     <h3>Create New Test</h3>
-    <form action="/instructor/action" method="POST"
-        style="flex-direction:row; flex-wrap:wrap; gap:0.75rem; align-items:flex-end;">
+    <form action="/instructor/action" method="POST" class="form-flex-row">
         <input type="hidden" name="type" value="test">
         <label style="flex:1 1 180px;">
             Subject
