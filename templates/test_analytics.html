@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Analytics – {{ title }} – MCQ Portal{% endblock %}
+{% block title %}Analytics – {{ title }} – Student Portal{% endblock %}
 {% block content %}
 
 <a href="/dashboard" class="back-link">← Back to Dashboard</a>
@@ -10,7 +10,7 @@
         <p style="color:var(--text-muted); margin:0;">{{ title }}</p>
     </div>
     <div style="text-align:right;">
-        <span class="badge {{ 'badge-draft' if is_active else 'badge-live' }}">
+        <span class="badge {{ 'badge-live' if is_active else 'badge-draft' }}">
             {{ 'Live' if is_active else 'Closed' }}
         </span>
     </div>

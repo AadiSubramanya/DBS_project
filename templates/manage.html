@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Manage Test – MCQ Portal{% endblock %}
+{% block title %}Manage Test – Student Portal{% endblock %}
 {% block content %}
 
 <a href="/dashboard" class="back-link">← Back to Dashboard</a>
@@ -125,56 +125,13 @@
     {% endif %}
 </section>
 
-<!-- STEP 4: Analytics -->
+<!-- Analytics link -->
 <section>
-    <h3>Test-wise Result Analytics</h3>
-    {% if results %}
-    <div style="display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
-        {% set total_stu = results|length %}
-        {% set st_sum = namespace(val=0) %}
-        {% for r in results %}
-            {% set pct = (r[1] / r[2] * 100) if r[2] else 0 %}
-            {% set st_sum.val = st_sum.val + pct %}
-        {% endfor %}
-        <div style="background:var(--bg-card); padding:1.5rem; border:1px solid var(--glass-border); flex:1; border-radius:var(--radius-md);">
-            <div class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Students Taken</div>
-            <div style="font-size:2rem; font-family:var(--font-display); font-weight:700;">{{ total_stu }}</div>
-        </div>
-        <div style="background:var(--bg-card); padding:1.5rem; border:1px solid var(--glass-border); flex:1; border-radius:var(--radius-md);">
-            <div class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Average Test Score</div>
-            <div style="font-size:2rem; font-family:var(--font-display); font-weight:700; color:var(--success);">{{ (st_sum.val / total_stu)|int }}%</div>
-        </div>
-    </div>
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Score</th>
-                    <th>Out of</th>
-                    <th>Date</th>
-                    <th>Result</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in results %}
-                <tr>
-                    <td>{{ r[0] }}</td>
-                    <td>{{ r[1] }}</td>
-                    <td>{{ r[2] }}</td>
-                    <td class="text-muted">{{ r[3] }}</td>
-                    <td>
-                        {% set pct = (r[1] / r[2] * 100)|int if r[2] else 0 %}
-                        <span class="badge {{ 'badge-live' if pct >= 50 else 'badge-draft' }}">{{ pct }}%</span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <p>No students have taken this test yet.</p>
-    {% endif %}
+    <h3>Results &amp; Analytics</h3>
+    <p>View detailed per-student results and question accuracy after closing the test.</p>
+    <a class="btn" href="/instructor/analytics/{{ tid }}" id="view-analytics-btn" style="margin-top:0.75rem; display:inline-flex;">
+        View Analytics →
+    </a>
 </section>
 
 {% endblock %}

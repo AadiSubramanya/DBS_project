@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MCQ Portal – Create, manage, and take online multiple-choice assessments.">
-    <title>{% block title %}MCQ Portal{% endblock %}</title>
+    <meta name="description" content="Student Portal – Create, manage, and take online multiple-choice assessments.">
+    <title>{% block title %}Student Portal{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -16,7 +16,7 @@
     <!-- Apply saved theme before paint to avoid flash -->
     <script>
         (function () {
-            var saved = localStorage.getItem('mcq-theme');
+            var saved = localStorage.getItem('sp-theme');
             if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
         })();
     </script>
@@ -24,7 +24,7 @@
 
 <body>
     <nav>
-        <h1>⬡ MCQ Portal</h1>
+        <h1>⬡ Student Portal</h1>
         <div>
             {% if session.get('user_id') %}
             <a href="/dashboard">Dashboard</a>
@@ -76,10 +76,10 @@
             var isLight = html.getAttribute('data-theme') === 'light';
             if (isLight) {
                 html.removeAttribute('data-theme');
-                localStorage.setItem('mcq-theme', 'dark');
+                localStorage.setItem('sp-theme', 'dark');
             } else {
                 html.setAttribute('data-theme', 'light');
-                localStorage.setItem('mcq-theme', 'light');
+                localStorage.setItem('sp-theme', 'light');
             }
         }
     </script>

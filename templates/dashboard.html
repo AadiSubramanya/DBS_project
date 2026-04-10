@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard – MCQ Portal{% endblock %}
+{% block title %}Dashboard – Student Portal{% endblock %}
 {% block content %}
 
 <!-- Hero header -->
@@ -123,7 +123,13 @@
 </section>
 
 <section>
-    <h3>Database Explorer</h3>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <h3 style="margin-bottom:0; border-bottom:none; padding-bottom:0;">Database Explorer</h3>
+        <form action="/admin/action" method="POST" style="display:inline-flex; margin:0;" onsubmit="return confirm('Clear all audit log entries? This cannot be undone.')">
+            <input type="hidden" name="action_type" value="clear_log">
+            <button type="submit" class="btn-delete-outline" id="clear-log-btn">Clear Audit Log</button>
+        </form>
+    </div>
     <select id="db-table-selector" onchange="showTable(this.value)" style="max-width:260px; margin-bottom:1rem;">
         {% for tname in data.db_view %}<option value="{{ tname }}">{{ tname }}</option>{% endfor %}
     </select>

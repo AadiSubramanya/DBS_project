@@ -1,5 +1,5 @@
 /* =============================================
-   MCQ PORTAL — Dual-Theme Design System
+   STUDENT PORTAL — Dual-Theme Design System
    Dark: Bold Typography  |  Light: Newsprint
    ============================================= */
 
@@ -231,6 +231,7 @@ main {
         transform: translateY(-10px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -431,7 +432,8 @@ select {
 }
 
 select option {
-    background: #1a1d2e;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 textarea {
@@ -764,30 +766,6 @@ tbody tr:hover {
 }
 
 /* ---------- Utility ---------- */
-.link-action {
-    color: var(--accent-light);
-    font-size: 0.83rem;
-    font-weight: 600;
-    padding: 0.35rem 0.75rem;
-    border-radius: 0;
-    border: 1px solid var(--glass-border);
-    transition: background var(--transition), color var(--transition);
-}
-
-.link-action:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--accent);
-    color: var(--text-primary);
-}
-
-.link-danger {
-    color: var(--danger-light);
-}
-
-.link-danger:hover {
-    background: rgba(255, 92, 122, 0.15);
-}
-
 .text-muted {
     color: var(--text-muted);
     font-size: 0.8rem;
@@ -1030,4 +1008,3 @@ tbody tr:hover {
     color: var(--text-primary);
     font-weight: 600;
 }
-

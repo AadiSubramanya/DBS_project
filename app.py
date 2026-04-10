@@ -239,6 +239,9 @@ def admin_action():
         elif action_type == 'delete_user':
             c.execute("DELETE FROM USERS WHERE user_id = :1", (request.form['user_id'],))
             flash("User deleted.", 'success')
+        elif action_type == 'clear_log':
+            c.execute("DELETE FROM AUDIT_LOGS")
+            flash("Audit log cleared.", 'success')
         conn.commit()
         conn.close()
     except Exception as e:
@@ -274,9 +277,10 @@ def inst_action():
             flash(f"Test '{title}' created! Now add questions below.", 'success')
             return redirect(url_for('manage_test', tid=new_tid))
         elif typ == 'delete_test':
-            c.execute("DELETE FROM TESTS WHERE test_id = :1 AND creator_id = :2", 
-                      (request.form.get('test_id'), session['user_id']))
-            conn.commit()
+            c.execute(
+                "DELETE FROM TESTS WHERE test_id = :1 AND creator_id = :2",
+                (request.form.get('test_id'), session['user_id'])
+            )
             flash("Test deleted successfully.", 'success')
 
         conn.commit()
