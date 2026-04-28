@@ -252,4 +252,42 @@ BEGIN
 END;
 /
 
+-- Prevent Deletion of Active Tests
+CREATE OR REPLACE TRIGGER trg_prevent_active_test_del
+BEFORE DELETE ON TESTS
+FOR EACH ROW
+BEGIN
+    IF :OLD.is_active = 1 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Cannot delete a LIVE test. Deactivate it first.');
+    END IF;
+END;
+/
+
+-- Username Normalization (Auto-Upper)
+CREATE OR REPLACE TRIGGER trg_upper_username
+BEFORE INSERT OR UPDATE ON USERS
+FOR EACH ROW
+BEGIN
+    :NEW.username := UPPER(:NEW.username);
+END;
+/
+
+-- Subject Modification Audit
+CREATE OR REPLACE TRIGGER trg_subject_change
+AFTER UPDATE ON SUBJECTS
+FOR EACH ROW
+BEGIN
+    INSERT INTO AUDIT_LOGS (action)
+    VALUES ('Subject ' || :OLD.name || ' updated to ' || :NEW.name);
+END;
+/
+
+-- Procedure for adding subjects with logging
+CREATE OR REPLACE PROCEDURE add_subject_log(p_name VARCHAR2, p_desc VARCHAR2) AS
+BEGIN
+    INSERT INTO SUBJECTS(name, description) VALUES (p_name, p_desc);
+    INSERT INTO AUDIT_LOGS(action) VALUES ('New subject added: ' || p_name);
+END;
+/
+
 commit;

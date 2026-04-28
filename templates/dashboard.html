@@ -122,9 +122,11 @@
 </section>
 
 <section>
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+    <div
+        style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
         <h3 style="margin-bottom:0; border-bottom:none; padding-bottom:0;">Database Explorer</h3>
-        <form action="/admin/action" method="POST" style="display:inline-flex; margin:0;" onsubmit="return confirm('Clear all audit log entries? This cannot be undone.')">
+        <form action="/admin/action" method="POST" style="display:inline-flex; margin:0;"
+            onsubmit="return confirm('Clear all audit log entries? This cannot be undone.')">
             <input type="hidden" name="action_type" value="clear_log">
             <button type="submit" class="btn-delete-outline" id="clear-log-btn">Clear Audit Log</button>
         </form>
@@ -217,7 +219,8 @@
                             {{ 'Live' if t[4] else 'Offline' }}
                         </span>
                         {% if t[4] %}
-                        <div style="font-size: 0.8rem; margin-top: 0.4rem; font-family: var(--font-body);" class="text-muted" id="timer-{{ t[0] }}" data-secs="{{ t[5] }}">
+                        <div style="font-size: 0.8rem; margin-top: 0.4rem; font-family: var(--font-body);"
+                            class="text-muted" id="timer-{{ t[0] }}" data-secs="{{ t[5] }}">
                             Loading...
                         </div>
                         {% endif %}
@@ -230,11 +233,14 @@
                             {{ 'Close Test' if t[4] else 'Go Live' }}
                         </a>
                         {% if not t[4] and t[6] %}
-                        <a class="link-action" href="/instructor/analytics/{{ t[0] }}" id="analytics-test-{{ t[0] }}">Results</a>
+                        <a class="link-action" href="/instructor/analytics/{{ t[0] }}"
+                            id="analytics-test-{{ t[0] }}">Results</a>
                         {% else %}
-                        <span style="color:var(--text-muted); font-size:0.82rem; cursor:not-allowed;" title="{{ 'Close the test first to view results' if t[4] else 'Test was never run' }}">Results</span>
+                        <span style="color:var(--text-muted); font-size:0.82rem; cursor:not-allowed;"
+                            title="{{ 'Close the test first to view results' if t[4] else 'Test was never run' }}">Results</span>
                         {% endif %}
-                        <form action="/instructor/action" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Delete this test? Sub-questions will be removed too.');">
+                        <form action="/instructor/action" method="POST" style="margin:0; display:inline;"
+                            onsubmit="return confirm('Delete this test? Sub-questions will be removed too.');">
                             <input type="hidden" name="type" value="delete_test">
                             <input type="hidden" name="test_id" value="{{ t[0] }}">
                             <button type="submit" class="btn-delete-outline" id="del-test-{{ t[0] }}">Delete</button>
@@ -254,26 +260,26 @@
 {% endif %}
 
 <script>
-// ── Instructor live-test countdown timers ──
-document.querySelectorAll('[id^="timer-"]').forEach(function(el) {
-    var secs = parseInt(el.getAttribute('data-secs') || '0', 10);
-    if (isNaN(secs) || secs <= 0) { el.textContent = 'Expired'; return; }
-    (function tick() {
-        if (secs <= 0) {
-            el.textContent = '⏱ Time up';
-            el.style.color = 'var(--danger)';
-            setTimeout(function() { location.reload(); }, 2000);
-            return;
-        }
-        var m = Math.floor(secs / 60);
-        var s = secs % 60;
-        el.textContent = '⏱ ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + ' remaining';
-        if (secs <= 120) el.style.color = 'var(--danger)';
-        else el.style.color = 'var(--accent)';
-        secs--;
-        setTimeout(tick, 1000);
-    })();
-});
+    // ── Instructor live-test countdown timers ──
+    document.querySelectorAll('[id^="timer-"]').forEach(function (el) {
+        var secs = parseInt(el.getAttribute('data-secs') || '0', 10);
+        if (isNaN(secs) || secs <= 0) { el.textContent = 'Expired'; return; }
+        (function tick() {
+            if (secs <= 0) {
+                el.textContent = '⏱ Time up';
+                el.style.color = 'var(--danger)';
+                setTimeout(function () { location.reload(); }, 2000);
+                return;
+            }
+            var m = Math.floor(secs / 60);
+            var s = secs % 60;
+            el.textContent = '⏱ ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + ' remaining';
+            if (secs <= 120) el.style.color = 'var(--danger)';
+            else el.style.color = 'var(--accent)';
+            secs--;
+            setTimeout(tick, 1000);
+        })();
+    });
 </script>
 
 <!-- ============ STUDENT ============ -->
